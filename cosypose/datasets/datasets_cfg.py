@@ -129,6 +129,9 @@ def make_scene_dataset(ds_name, n_frames=None):
     elif ds_name == 'tudl.train.real':
         ds_dir = BOP_DS_DIR / 'tudl'
         ds = BOPDataset(ds_dir, split='train_real')
+    elif ds_name == 'bracket_assembly':
+        ds_dir = BOP_DS_DIR / 'bracket_assembly'
+        ds = BOPDataset(ds_dir, split='train_pbr')
 
     # Synthetic datasets
     elif 'synthetic.' in ds_name:
@@ -176,6 +179,8 @@ def make_object_dataset(ds_name):
         ds = BOPObjectDataset(BOP_DS_DIR / 'lm/models')
     elif ds_name == 'tudl':
         ds = BOPObjectDataset(BOP_DS_DIR / 'tudl/models')
+    elif ds_name == 'bracket_assembly':
+        ds = BOPObjectDataset(BOP_DS_DIR / 'bracket_assembly/models')
 
     else:
         raise ValueError(ds_name)
@@ -216,6 +221,8 @@ def make_urdf_dataset(ds_name):
 
     elif ds_name == 'camera':
         ds = OneUrdfDataset(ASSET_DIR / 'camera/model.urdf', 'camera')
+    elif ds_name == 'bracket_assembly':
+        ds = BOPUrdfDataset(LOCAL_DATA_DIR / 'urdfs' / 'bracket_assembly')
     else:
         raise ValueError(ds_name)
     return ds

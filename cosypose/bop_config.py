@@ -38,6 +38,16 @@ BOP_CONFIG['lmo'] = dict(
     test_ds_name=['lmo.bop19'],
 )
 
+BOP_CONFIG['bracket_assembly'] = dict(
+    input_resize=(640, 480),
+    urdf_ds_name='bracket_assembly',
+    obj_ds_name='bracket_assembly',
+    train_pbr_ds_name=['bracket_assembly'],
+    train_pbr_real_ds_names=[('bracket_assembly', 1), ()],
+    inference_ds_name=['bracket_assembly'],
+    test_ds_name=['bracket_assembly'],
+)
+
 
 BOP_CONFIG['tless'] = dict(
     input_resize=(720, 540),

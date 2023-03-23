@@ -139,7 +139,7 @@ class CropResizeToAspectAugmentation:
         self.resize = (min(resize), max(resize))
         self.aspect = max(resize) / min(resize)
 
-    def __call__(self, im, mask, obs):
+    def __call__(self, im, mask, obs, idx):
         im = to_torch_uint8(im)
         mask = to_torch_uint8(mask)
         obs['orig_camera'] = deepcopy(obs['camera'])
@@ -183,6 +183,7 @@ class CropResizeToAspectAugmentation:
         for n, obj in enumerate(obs['objects']):
             if 'bbox' in obj:
                 assert 'id_in_segm' in obj
+                print(obj["id_in_segm"], obj.keys(), obj['id_in_segm'] in dets_gt, dets_gt.keys(), idx)
                 obj['bbox'] = dets_gt[obj['id_in_segm']]
 
         im = (images[0].permute(1, 2, 0) * 255).to(torch.uint8)

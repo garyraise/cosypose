@@ -47,7 +47,8 @@ class DetectionDataset(torch.utils.data.Dataset):
     def get_data(self, idx):
         rgb, mask, state = self.scene_ds[idx]
 
-        rgb, mask, state = self.resize_augmentation(rgb, mask, state)
+        print(idx)
+        rgb, mask, state = self.resize_augmentation(rgb, mask, state, idx)
 
         if self.background_augmentation:
             rgb, mask, state = self.background_augmentations(rgb, mask, state)

@@ -39,6 +39,7 @@ def build_index(ds_dir, save_file, split, save_file_annotations):
         for f in ('scene_camera.json', 'scene_gt_info.json', 'scene_gt.json'):
             path = (scene_dir / f)
             if path.exists():
+                print(path, f)
                 annotations_scene[f.split('.')[0]] = json.loads(path.read_text())
         annotations[scene_id] = annotations_scene
         # for view_id in annotations_scene['scene_gt_info'].keys():
@@ -88,6 +89,7 @@ class BOPDataset:
         view_id_str = f'{view_id:06d}'
         scene_id_str = f'{int(scene_id):06d}'
         scene_dir = self.base_dir / scene_id_str
+        print(self.base_dir, frame_id, scene_id_str)
 
         rgb_dir = scene_dir / 'rgb'
         if not rgb_dir.exists():
@@ -108,7 +110,7 @@ class BOPDataset:
         cam_annotation = self.annotations[scene_id_str]['scene_camera'][str(view_id)]
         if 'cam_R_w2c' in cam_annotation:
             RC0 = np.array(cam_annotation['cam_R_w2c']).reshape(3, 3)
-            tC0 = np.array(cam_annotation['cam_t_w2c']) * 0.001
+            tC0 = np.array(cam_annotation['cam_t_w2c'])# * 0.001
             TC0 = Transform(RC0, tC0)
         else:
             TC0 = Transform(np.eye(3), np.zeros(3))
@@ -127,7 +129,7 @@ class BOPDataset:
             visib = self.annotations[scene_id_str]['scene_gt_info'][str(view_id)]
             for n in range(n_objects):
                 RCO = np.array(annotation[n]['cam_R_m2c']).reshape(3, 3)
-                tCO = np.array(annotation[n]['cam_t_m2c']) * 0.001
+                tCO = np.array(annotation[n]['cam_t_m2c']) #* 0.001
                 TCO = Transform(RCO, tCO)
                 T0O = T0C * TCO
                 T0O = T0O.toHomogeneousMatrix()
@@ -159,7 +161,7 @@ class BOPDataset:
             if not depth_path.exists():
                 depth_path = depth_path.with_suffix('.tif')
             depth = np.array(inout.load_depth(depth_path))
-            camera['depth'] = depth * cam_annotation['depth_scale'] / 1000
+            camera['depth'] = depth * cam_annotation['depth_scale'] #/ 1000
 
         obs = dict(
             objects=objects,
