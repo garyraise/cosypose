@@ -58,7 +58,7 @@ def make_cfg(args):
     cfg.clip_grad_norm = 0.5
 
     # Training
-    cfg.batch_size = 32
+    cfg.batch_size = 8
     cfg.epoch_size = 115200
     cfg.n_epochs = 700
     cfg.n_dataloader_workers = N_WORKERS
@@ -167,6 +167,21 @@ def make_cfg(args):
 
         else:
             raise ValueError(args.config)
+    elif args.config == 'bracket_assembly':
+        from cosypose.bop_config import BOP_CONFIG
+        from cosypose.bop_config import PBR_COARSE, PBR_REFINER
+
+        cfg.train_ds_names = [("bracket_assembly", 1)]
+        bop_cfg = BOP_CONFIG["bracket_assembly"]
+
+        cfg.val_ds_names = cfg.train_ds_names
+        cfg.urdf_ds_name = bop_cfg['urdf_ds_name']
+        cfg.object_ds_name = bop_cfg['obj_ds_name']
+        cfg.input_resize = bop_cfg['input_resize']
+        cfg.test_ds_names = []
+
+        cfg.TCO_input_generator = 'gt+noise'
+
     elif args.resume:
         pass
 

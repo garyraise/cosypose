@@ -221,6 +221,8 @@ def get_pose_meters(scene_ds):
 def load_models(coarse_run_id, refiner_run_id=None, n_workers=8, object_set='tless'):
     if object_set == 'tless':
         object_ds_name, urdf_ds_name = 'tless.bop', 'tless.cad'
+    elif object_set == 'bracket_assembly':
+        object_ds_name, urdf_ds_name = 'bracket_assembly', 'bracket_assembly'
     else:
         object_ds_name, urdf_ds_name = 'ycbv.bop-compat.eval', 'ycbv'
 
@@ -233,7 +235,7 @@ def load_models(coarse_run_id, refiner_run_id=None, n_workers=8, object_set='tle
         if run_id is None:
             return
         run_dir = EXP_DIR / run_id
-        cfg = yaml.load((run_dir / 'config.yaml').read_text(), Loader=yaml.FullLoader)
+        cfg = yaml.unsafe_load((run_dir / 'config.yaml').read_text())
         cfg = check_update_config(cfg)
         if cfg.train_refiner:
             model = create_model_refiner(cfg, renderer=renderer, mesh_db=mesh_db_batched)
@@ -297,6 +299,11 @@ def main():
         refiner_run_id = 'ycbv-refiner-finetune--251020'
         n_coarse_iterations = 0
         n_refiner_iterations = 2
+    elif args.config == 'bracket_assembly':
+        object_set = 'bracket_assembly'
+        coarse_run_id = 'bracket_assembly--772735'
+        n_coarse_iterations = 1
+        n_refiner_iterations = 0
     else:
         raise ValueError(args.config)
 
@@ -307,6 +314,8 @@ def main():
         ds_name = 'tless.primesense.test.bop19'
     elif args.config == 'ycbv':
         ds_name = 'ycbv.test.keyframes'
+    elif args.config == 'bracket_assembly':
+        ds_name = 'bracket_assembly'
     else:
         raise ValueError(args.config)
 

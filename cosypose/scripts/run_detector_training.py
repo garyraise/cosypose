@@ -55,7 +55,7 @@ if __name__ == '__main__':
     cfg.pretrain_coco = True
 
     # Training
-    cfg.batch_size = 2
+    cfg.batch_size = 1
     cfg.epoch_size = 5000
     cfg.n_epochs = 600
     cfg.lr_epoch_decay = 200
