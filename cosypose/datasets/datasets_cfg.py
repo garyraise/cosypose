@@ -30,6 +30,7 @@ def keep_bop19(ds):
 
 
 def make_scene_dataset(ds_name, n_frames=None):
+    '''return a dataframe? with index for each frame'''
     # TLESS
     if ds_name == 'tless.primesense.train':
         ds = _make_tless_dataset('train_primesense')

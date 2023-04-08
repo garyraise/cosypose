@@ -43,6 +43,7 @@ class CoarseRefinePosePredictor(torch.nn.Module):
             TCO_input = obj_inputs.poses
             outputs = model(images=images_, K=K_, TCO=TCO_input,
                             n_iterations=n_iterations, labels=labels)
+            logger.info(f"outputs, {outputs}") # outputs
             timer.pause()
             for n in range(1, n_iterations+1):
                 iter_outputs = outputs[f'iteration={n}']

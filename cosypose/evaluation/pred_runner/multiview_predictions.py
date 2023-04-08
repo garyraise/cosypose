@@ -90,7 +90,11 @@ class MultiviewPredictionRunner:
             det_index = detections.infos.set_index(['scene_id', 'view_id']).sort_index()
 
         predictions = defaultdict(list)
+        # debug_only = 0
         for data in tqdm(self.dataloader):
+            # debug_only += 1
+            # if debug_only > 2:
+            #     break
             images = data['images'].cuda().float().permute(0, 3, 1, 2) / 255
             cameras = data['cameras'].cuda().float()
             gt_detections = data['gt_detections'].cuda().float()
@@ -126,6 +130,7 @@ class MultiviewPredictionRunner:
 
             sv_preds, mv_preds = dict(), dict()
             if len(detections_) > 0:
+                # just load detection from model output
                 data_TCO_init = detections_ if use_detections_TCO else None
                 detections__ = detections_ if not use_detections_TCO else None
                 candidates, sv_preds = pose_predictor.get_predictions(
@@ -141,14 +146,15 @@ class MultiviewPredictionRunner:
                         candidates, cameras,
                     )
             logger.debug(f"{'-'*80}")
-
+            logger.debug(f'len of detections. {len(detections_)}')
             for k, v in sv_preds.items():
                 predictions[k].append(v.cpu())
-
+            
             for k, v in mv_preds.items():
                 predictions[k].append(v.cpu())
 
         predictions = dict(predictions)
+        logger.debug(f'predictions. {predictions}')
         for k, v in predictions.items():
             predictions[k] = tc.concatenate(v)
         return predictions
