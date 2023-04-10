@@ -167,7 +167,7 @@ def make_cfg(args):
 
         else:
             raise ValueError(args.config)
-    elif args.config == 'bracket_assembly':
+    elif 'bracket_assembly' in args.config:
         from cosypose.bop_config import BOP_CONFIG
         from cosypose.bop_config import PBR_COARSE, PBR_REFINER
 
@@ -180,7 +180,12 @@ def make_cfg(args):
         cfg.input_resize = bop_cfg['input_resize']
         cfg.test_ds_names = []
 
-        cfg.TCO_input_generator = 'gt+noise'
+        if 'coarse' in args.config:
+            cfg.init_method = 'z-up+auto-depth'
+            cfg.TCO_input_generator = 'fixed+trans_noise'
+            run_comment = 'transnoise-zxyavg'
+        elif 'refiner' in args.config: # train_refiner: true
+            cfg.TCO_input_generator = 'gt+noise'
 
     elif args.resume:
         pass

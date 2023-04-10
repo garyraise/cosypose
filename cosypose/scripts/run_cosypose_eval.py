@@ -417,9 +417,10 @@ def main():
         n_refiner_iterations = 2
     elif args.config == 'bracket_assembly':
         object_set = 'bracket_assembly'
-        coarse_run_id = f'bracket_assembly--{coarse_run_id}'
+        coarse_run_id = f'bracket_assembly_coarse-transnoise-zxyavg-616093'
+        refiner_run_id = 'bracket_assembly_refiner--558735'
         n_coarse_iterations = 1
-        n_refiner_iterations = 0
+        n_refiner_iterations = 2
     else:
         raise ValueError(args.config)
 
@@ -456,8 +457,6 @@ def main():
     # Load dataset
     scene_ds = make_scene_dataset(ds_name)
 
-    n_frames = 2
-    scene_id = None
     if scene_id is not None:
         mask = scene_ds.frame_index['scene_id'] == scene_id
         scene_ds.frame_index = scene_ds.frame_index[mask].reset_index(drop=True)
@@ -606,7 +605,7 @@ def main():
     })
     if get_rank() == 0:
         save_dir.mkdir()
-        results = format_results(all_predictions, all_predictions, eval_dfs, print_metrics=True)
+        results = format_results(all_predictions, eval_metrics, eval_dfs, print_metrics=True)
         (save_dir / 'full_summary.txt').write_text(results.get('summary_txt', ''))
         print("results,all_predictions, all_predictions", results, all_predictions, eval_dfs)
 
