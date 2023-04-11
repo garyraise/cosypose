@@ -167,10 +167,10 @@ def make_cfg(args):
 
         else:
             raise ValueError(args.config)
-    elif args.config == 'bracket_assembly':
+    elif 'bracket_assembly' in args.config:
         from cosypose.bop_config import BOP_CONFIG
         from cosypose.bop_config import PBR_COARSE, PBR_REFINER
-
+        
         cfg.train_ds_names = [("bracket_assembly", 1)]
         bop_cfg = BOP_CONFIG["bracket_assembly"]
 

@@ -179,10 +179,23 @@ def get_pose_meters(scene_ds):
 
     error_types = ['ADD-S'] + (['ADD(-S)'] if compute_add else [])
 
+    # base_kwargs = dict(
+    #     mesh_db=mesh_db,
+    #     exact_meshes=True,
+    #     sample_n_points=None,
+    #     errors_bsz=1,
+
+    #     # BOP-Like parameters
+    #     n_top=n_top,
+    #     visib_gt_min=visib_gt_min,
+    #     targets=targets,
+    #     spheres_overlap_check=spheres_overlap_check,
+    # )
+    # sample less points
     base_kwargs = dict(
         mesh_db=mesh_db,
-        exact_meshes=True,
-        sample_n_points=None,
+        exact_meshes=False,
+        sample_n_points=100,
         errors_bsz=1,
 
         # BOP-Like parameters
@@ -301,7 +314,8 @@ def main():
         n_refiner_iterations = 2
     elif args.config == 'bracket_assembly':
         object_set = 'bracket_assembly'
-        coarse_run_id = 'bracket_assembly--772735'
+        refiner_run_id = 'bracket_assembly_refiner--558735'
+        # coarse_run_id = 'bracket_assembly--772735'
         n_coarse_iterations = 1
         n_refiner_iterations = 0
     else:
