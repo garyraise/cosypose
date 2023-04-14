@@ -181,7 +181,7 @@ def make_object_dataset(ds_name):
     elif ds_name == 'tudl':
         ds = BOPObjectDataset(BOP_DS_DIR / 'tudl/models')
     elif ds_name == 'bracket_assembly':
-        ds = BOPObjectDataset(BOP_DS_DIR / 'bracket_assembly/models')
+        ds = BOPObjectDataset(BOP_DS_DIR / 'bracket_assembly/models', mesh_units='m')
 
     else:
         raise ValueError(ds_name)

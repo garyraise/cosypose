@@ -131,10 +131,10 @@ class PoseDataset(torch.utils.data.Dataset):
         while not valid:
             if n_attempts > 10:
                 raise ValueError('Cannot find valid image in the dataset')
-            try:
-                data = self.get_data(try_index)
-                valid = True
-            except NoObjectError:
-                try_index = random.randint(0, len(self.scene_ds) - 1)
-                n_attempts += 1
+            # try:
+            data = self.get_data(try_index)
+            valid = True
+            # except NoObjectError:
+            #     try_index = random.randint(0, len(self.scene_ds) - 1)
+            #     n_attempts += 1
         return data

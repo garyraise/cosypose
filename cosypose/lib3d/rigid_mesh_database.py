@@ -49,7 +49,6 @@ class MeshDataBase:
             symmetries.append(torch.as_tensor(symmetries_n))
             points.append(torch.as_tensor(points_n))
             labels.append(label)
-
         labels = np.array(labels)
         points = pad_stack_tensors(points, fill='select_random', deterministic=True)
         symmetries = pad_stack_tensors(symmetries, fill=torch.eye(4), deterministic=True)

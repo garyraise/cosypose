@@ -3,7 +3,8 @@ from pathlib import Path
 
 
 class BOPObjectDataset:
-    def __init__(self, ds_dir):
+    def __init__(self, ds_dir, mesh_units='mm'):
+        assert mesh_units in ("mm", "m") # 'mm' for tless, 'm' for bracket assembly
         ds_dir = Path(ds_dir)
         infos_file = ds_dir / 'models_info.json'
         infos = json.loads(infos_file.read_text())
@@ -20,7 +21,7 @@ class BOPObjectDataset:
                 label=obj_label,
                 category=None,
                 mesh_path=mesh_path,
-                mesh_units='mm',
+                mesh_units=mesh_units, # mm for tless
             )
             is_symmetric = False
             for k in ('symmetries_discrete', 'symmetries_continuous'):

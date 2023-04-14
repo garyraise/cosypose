@@ -146,20 +146,48 @@ def load_custom_detection_from_gt():
     path_scene_dir = os.path.join(path_data_dir, "train_pbr")
     scene_names = os.listdir(path_scene_dir)
     infos, poses, bboxes = [], [], []
+    # debug_only = 0
     for scene_id, scene_name in enumerate(scene_names):
         path_scene_gt_info = os.path.join(path_scene_dir, scene_name, "scene_gt_info.json")
         path_scene_gt = os.path.join(path_scene_dir, scene_name, "scene_gt.json")
+        path_scene_gt_camera = os.path.join(path_scene_dir, scene_name, "scene_camera.json")
         with open(path_scene_gt_info, "r") as f:
             json_data_gt_info = json.load(f)
         with open(path_scene_gt, "r") as f:
             json_data_gt = json.load(f)
+        with open(path_scene_gt_camera, "r") as f:
+            json_gt_camera = json.load(f)
         img_names_rgb = os.listdir(os.path.join(path_scene_dir, scene_name, "rgb"))
+        # todo
+        # scene_camera = load_scene_camera(path_scene_gt_camera)
+        from cosypose.lib3d import Transform
         for img_id, img_name in enumerate(img_names_rgb[:-1]):
             if not f"{img_id}" in json_data_gt_info:
                 continue
             if not f"{img_id}" in json_data_gt:
                 continue
+            if not f"{img_id}" in json_gt_camera:
+                continue
+            # cam_R_w2c = scene_camera[img_id]["cam_R_w2c"]
+            # TODO
+            cam_R_w2c = json_gt_camera[f"{img_id}"]["cam_R_w2c"]
+            cam_t_w2c = json_gt_camera[f"{img_id}"]["cam_t_w2c"]
+            row0 = [cam_R_w2c[0], cam_R_w2c[1], cam_R_w2c[2], cam_t_w2c[0]] 
+            row1 = [cam_R_w2c[3], cam_R_w2c[4], cam_R_w2c[5], cam_t_w2c[1]]
+            row2 = [cam_R_w2c[6], cam_R_w2c[7], cam_R_w2c[8], cam_t_w2c[2]]           
+            row3 = [0, 0, 0, 1]
+            cam_rot_loc_mat = np.asarray([row0, row1, row2, row3])
+
+
+            if 'cam_R_w2c' in json_gt_camera[f"{img_id}"]:
+                RC0 = np.array(json_gt_camera[f"{img_id}"]['cam_R_w2c']).reshape(3, 3)
+                tC0 = np.array(json_gt_camera[f"{img_id}"]['cam_t_w2c'])# * 0.001
+                TC0 = Transform(RC0, tC0)
+                T0C = TC0.inverse()
+                T0C = T0C.toHomogeneousMatrix()
             for label_idx, label in enumerate(json_data_gt[f"{img_id}"]):
+                
+
                 obj_id = label["obj_id"] # int
                 list_bbox = json_data_gt_info[f"{img_id}"][label_idx]["bbox_obj"] # TODO: ?
 
@@ -171,17 +199,28 @@ def load_custom_detection_from_gt():
                 list_bbox = [xmin, ymin, xmax, ymax]
                 list_rot  = json_data_gt[f"{img_id}"][label_idx]["cam_R_m2c"]
                 list_loc  = json_data_gt[f"{img_id}"][label_idx]["cam_t_m2c"]
+                # RCO = np.array(json_data_gt[f"{img_id}"][label_idx]['cam_R_m2c']).reshape(3, 3)
+                # tCO = np.array(json_data_gt[f"{img_id}"][label_idx]['cam_t_m2c']) #* 0.001
+                # TCO = Transform(RCO, tCO)
+                # T0O = T0C * TCO
+                # T0O = T0O.toHomogeneousMatrix()
+
                 row0 = [list_rot[0], list_rot[1], list_rot[2], list_loc[0]] 
                 row1 = [list_rot[3], list_rot[4], list_rot[5], list_loc[1]]
                 row2 = [list_rot[6], list_rot[7], list_rot[8], list_loc[2]]
                 row3 = [0, 0, 0, 1]
-                rot_loc_mat = [row0, row1, row2, row3]
+                rot_loc_mat = np.asarray([row0, row1, row2, row3])
+                rot_loc_mat = np.matmul(np.linalg.inv(cam_rot_loc_mat), rot_loc_mat)
+                if scene_id == 0 and img_id == 20:
+                    print("label_idx",label_idx)
+                    print("rot_loc_mat", rot_loc_mat)
                 infos.append(dict(
                         scene_id=scene_id,
                         view_id=img_id,
                         score=1,
                         label=f"obj_{obj_id:06d}",
                     ))
+                # poses.append(T0O)
                 poses.append(rot_loc_mat)
                 bboxes.append(list_bbox)
     data = tc.PandasTensorCollection(
@@ -200,11 +239,7 @@ def load_pix2pose_results(all_detections=True, remove_incorrect_poses=False):
     pix2pose_results = pkl.loads(results_path.read_bytes())
     
     infos, poses, bboxes = [], [], []
-    # debug_only = 0
     for key, result in pix2pose_results.items():
-        # debug_only += 1
-        # if debug_only > 2:
-        #     break
         scene_id, view_id = key.split('/')
         scene_id, view_id = int(scene_id), int(view_id)
         boxes = result['rois']
@@ -447,7 +482,7 @@ def main():
         n_frames = None
         n_workers = 0
         n_plotters = 0
-
+    scene_id = 0
     n_rand = np.random.randint(1e10)
     save_dir = RESULTS_DIR / f'{args.config}-n_views={n_views}-{args.comment}-{n_rand}'
     logger.info(f"SAVE DIR: {save_dir}")
@@ -457,12 +492,15 @@ def main():
     # Load dataset
     scene_ds = make_scene_dataset(ds_name)
 
+    n_frames = 20 # None
     if scene_id is not None:
         mask = scene_ds.frame_index['scene_id'] == scene_id
         scene_ds.frame_index = scene_ds.frame_index[mask].reset_index(drop=True)
     if n_frames is not None:
-        scene_ds.frame_index = scene_ds.frame_index.reset_index(drop=True)[:n_frames]
-
+        # scene_ds.frame_index = scene_ds.frame_index.reset_index(drop=True)[:n_frames]
+        # scene_ds.frame_index = scene_ds.frame_index.reset_index(drop=True)[n_frames:n_frames+1]
+        scene_ds.frame_index = scene_ds.frame_index.reset_index(drop=True)[n_frames:n_frames+1]
+    print('dataset', scene_ds[0])
     # Predictions
     predictor, mesh_db = load_models(coarse_run_id, refiner_run_id, n_workers=n_plotters, object_set=object_set)
 
@@ -506,7 +544,6 @@ def main():
         raise ValueError(ds_name)
 
     scene_ds_pred = MultiViewWrapper(scene_ds, n_views=n_views)
-    print("group_id", group_id)
     if group_id is not None:
         mask = scene_ds_pred.frame_index['group_id'] == group_id
         scene_ds_pred.frame_index = scene_ds_pred.frame_index[mask].reset_index(drop=True)
@@ -541,6 +578,7 @@ def main():
     elif 'bracket_assembly' in ds_name: # BOP dataset
         det_key = 'pix2pose_detections'
         predictions_to_evaluate.add(f'{det_key}/coarse/iteration=1')
+        predictions_to_evaluate.add(f'{det_key}/refiner/iteration={n_refiner_iterations}')
     else:
         raise ValueError(ds_name)
 

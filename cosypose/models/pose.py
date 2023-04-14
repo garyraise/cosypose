@@ -33,7 +33,7 @@ class PosePredictor(nn.Module):
         self.pose_fc = nn.Linear(n_features, pose_dim, bias=True)
         self.heads['pose'] = self.pose_fc
 
-        self.debug = False
+        self.debug = True
         self.tmp_debug = dict()
 
     def enable_debug(self):
@@ -50,6 +50,9 @@ class PosePredictor(nn.Module):
         meshes = self.mesh_db.select(labels)
         points = meshes.sample_points(2000, deterministic=True)
         uv = project_points(points, K, TCO)
+        # logger.info("uv", uv[0])
+        # logger.info("points", points[0,...])
+        # logger.info("K", K)
         boxes_rend = boxes_from_uv(uv)
         boxes_crop, images_cropped = deepim_crops(
             images=images, obs_boxes=boxes_rend, K=K,
@@ -88,12 +91,15 @@ class PosePredictor(nn.Module):
 
     def forward(self, images, K, labels, TCO, n_iterations=1):
         bsz, nchannels, h, w = images.shape
+        print('pose model', images.shape)
         assert K.shape == (bsz, 3, 3)
         assert TCO.shape == (bsz, 4, 4)
         assert len(labels) == bsz
 
         outputs = dict()
         TCO_input = TCO
+        for i in range(len(images)-1):
+            assert (images[i] == images[i+1]).all()
         for n in range(n_iterations):
             TCO_input = TCO_input.detach()
             images_crop, K_crop, boxes_rend, boxes_crop = self.crop_inputs(images, K, TCO_input, labels)
@@ -127,6 +133,7 @@ class PosePredictor(nn.Module):
                 )
                 path = DEBUG_DATA_DIR / f'debug_iter={n+1}.pth.tar'
                 logger.info(f'Wrote debug data: {path}')
+                print(images.shape, images_crop.shape)
                 torch.save(self.tmp_debug, path)
 
         return outputs

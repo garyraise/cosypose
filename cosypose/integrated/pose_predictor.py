@@ -24,6 +24,7 @@ class CoarseRefinePosePredictor(torch.nn.Module):
 
     @torch.no_grad()
     def batched_model_predictions(self, model, images, K, obj_data, n_iterations=1):
+        logger.info(f'batched_model_predictions {images.shape} {self.bsz_objec}')
         timer = Timer()
         timer.start()
 
@@ -39,6 +40,7 @@ class CoarseRefinePosePredictor(torch.nn.Module):
             labels = obj_inputs.infos['label'].values
             im_ids = obj_inputs.infos['batch_im_id'].values
             images_ = images[im_ids]
+            logger.info(f'batched_model_predictions {batch_ids} {im_ids} {images_.shape}')
             K_ = K[im_ids]
             TCO_input = obj_inputs.poses
             outputs = model(images=images_, K=K_, TCO=TCO_input,
@@ -81,6 +83,7 @@ class CoarseRefinePosePredictor(torch.nn.Module):
                         n_refiner_iterations=1):
 
         preds = dict()
+        print('get_predictions', images.shape, data_TCO_init, n_refiner_iterations)
         if data_TCO_init is None:
             assert detections is not None
             assert self.coarse_model is not None

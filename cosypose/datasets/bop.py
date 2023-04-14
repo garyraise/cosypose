@@ -89,7 +89,6 @@ class BOPDataset:
         view_id_str = f'{view_id:06d}'
         scene_id_str = f'{int(scene_id):06d}'
         scene_dir = self.base_dir / scene_id_str
-        # print(self.base_dir, frame_id, scene_id_str)
 
         rgb_dir = scene_dir / 'rgb'
         if not rgb_dir.exists():
