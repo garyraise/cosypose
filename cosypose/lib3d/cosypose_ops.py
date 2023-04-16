@@ -125,6 +125,7 @@ def TCO_init_from_boxes(z_range, boxes, K):
     assert boxes.dim() == 2
     bsz = boxes.shape[0]
     uv_centers = (boxes[:, [0, 1]] + boxes[:, [2, 3]]) / 2
+    print('TCO init', uv_centers)
     z = torch.as_tensor(z_range).mean().unsqueeze(0).unsqueeze(0).repeat(bsz, 1).to(boxes.device).to(boxes.dtype)
     fxfy = K[:, [0, 1], [0, 1]]
     cxcy = K[:, [0, 1], [2, 2]]
@@ -150,6 +151,7 @@ def TCO_init_from_boxes_zup_autodepth(boxes_2d, model_points_3d, K):
         [0, 0, 0, 1]
     ]).to(torch.float).to(boxes_2d.device).repeat(bsz, 1, 1)
     bb_xy_centers = (boxes_2d[:, [0, 1]] + boxes_2d[:, [2, 3]]) / 2
+    print('tco auto z', bb_xy_centers, boxes_2d)
     xy_init = ((bb_xy_centers - cxcy) * z_guess) / fxfy
     TCO[:, :2, 3] = xy_init
 

@@ -9,11 +9,7 @@ class BOPObjectDataset:
         infos_file = ds_dir / 'models_info.json'
         infos = json.loads(infos_file.read_text())
         objects = []
-        # debug_only = 0
         for obj_id, bop_info in infos.items():
-            # debug_only += 1
-            # if debug_only > 2:
-            #     break
             obj_id = int(obj_id)
             obj_label = f'obj_{obj_id:06d}'
             mesh_path = (ds_dir / obj_label).with_suffix('.ply').as_posix()

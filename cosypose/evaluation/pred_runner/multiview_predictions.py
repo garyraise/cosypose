@@ -90,11 +90,7 @@ class MultiviewPredictionRunner:
             det_index = detections.infos.set_index(['scene_id', 'view_id']).sort_index()
 
         predictions = defaultdict(list)
-        # debug_only = 0
         for data in tqdm(self.dataloader):
-            # debug_only += 1
-            # if debug_only > 2:
-            #     break
             images = data['images'].cuda().float().permute(0, 3, 1, 2) / 255
             cameras = data['cameras'].cuda().float()
             gt_detections = data['gt_detections'].cuda().float()

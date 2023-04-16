@@ -141,12 +141,11 @@ def load_posecnn_results():
     return data
 
 @MEMORY.cache
-def load_custom_detection_from_gt():
+def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None):
     path_data_dir = LOCAL_DATA_DIR / 'bop_datasets' / 'bracket_assembly'
     path_scene_dir = os.path.join(path_data_dir, "train_pbr")
     scene_names = os.listdir(path_scene_dir)
     infos, poses, bboxes = [], [], []
-    # debug_only = 0
     for scene_id, scene_name in enumerate(scene_names):
         path_scene_gt_info = os.path.join(path_scene_dir, scene_name, "scene_gt_info.json")
         path_scene_gt = os.path.join(path_scene_dir, scene_name, "scene_gt.json")
@@ -189,13 +188,12 @@ def load_custom_detection_from_gt():
                 
 
                 obj_id = label["obj_id"] # int
-                list_bbox = json_data_gt_info[f"{img_id}"][label_idx]["bbox_obj"] # TODO: ?
+                list_bbox = json_data_gt_info[f"{img_id}"][label_idx]["bbox_visib"] # TODO: ?
 
-            # list_bbox = json_data_gt_info[f"{img_id}"][0]["bbox_obj"] # TODO: ?
                 xmin = list_bbox[0]
                 ymin = list_bbox[1]
-                xmax = list_bbox[0] + list_bbox[2]
-                ymax = list_bbox[1] + list_bbox[3]
+                xmax = list_bbox[0] +  list_bbox[2]
+                ymax = list_bbox[1] +  list_bbox[3]
                 list_bbox = [xmin, ymin, xmax, ymax]
                 list_rot  = json_data_gt[f"{img_id}"][label_idx]["cam_R_m2c"]
                 list_loc  = json_data_gt[f"{img_id}"][label_idx]["cam_t_m2c"]
@@ -212,8 +210,8 @@ def load_custom_detection_from_gt():
                 rot_loc_mat = np.asarray([row0, row1, row2, row3])
                 rot_loc_mat = np.matmul(np.linalg.inv(cam_rot_loc_mat), rot_loc_mat)
                 if scene_id == 0 and img_id == 20:
-                    print("label_idx",label_idx)
-                    print("rot_loc_mat", rot_loc_mat)
+                    logger.info(f"label_idx {label_idx}")
+                    logger.info(f"rot_loc_mat {rot_loc_mat}")
                 infos.append(dict(
                         scene_id=scene_id,
                         view_id=img_id,
@@ -455,7 +453,7 @@ def main():
         coarse_run_id = f'bracket_assembly_coarse-transnoise-zxyavg-616093'
         refiner_run_id = 'bracket_assembly_refiner--558735'
         n_coarse_iterations = 1
-        n_refiner_iterations = 2
+        n_refiner_iterations = 0
     else:
         raise ValueError(args.config)
 
@@ -498,7 +496,6 @@ def main():
         scene_ds.frame_index = scene_ds.frame_index[mask].reset_index(drop=True)
     if n_frames is not None:
         # scene_ds.frame_index = scene_ds.frame_index.reset_index(drop=True)[:n_frames]
-        # scene_ds.frame_index = scene_ds.frame_index.reset_index(drop=True)[n_frames:n_frames+1]
         scene_ds.frame_index = scene_ds.frame_index.reset_index(drop=True)[n_frames:n_frames+1]
     print('dataset', scene_ds[0])
     # Predictions
@@ -520,6 +517,7 @@ def main():
         pred_kwargs = {
             'pix2pose_detections': dict(
                 detections=bracket_detections,
+                # use_detections_TCO=posecnn_detections,
                 **base_pred_kwargs
             )
         }

@@ -52,7 +52,7 @@ class PosePredictor(nn.Module):
         uv = project_points(points, K, TCO)
         # logger.info("uv", uv[0])
         # logger.info("points", points[0,...])
-        # logger.info("K", K)
+        logger.info(f"TCO {TCO}")
         boxes_rend = boxes_from_uv(uv)
         boxes_crop, images_cropped = deepim_crops(
             images=images, obs_boxes=boxes_rend, K=K,
@@ -61,10 +61,14 @@ class PosePredictor(nn.Module):
         K_crop = get_K_crop_resize(K=K.clone(), boxes=boxes_crop,
                                    orig_size=images.shape[-2:], crop_resize=self.render_size)
         if self.debug:
+            print("points", points)
+            self.tmp_debug.update(points=points)
             self.tmp_debug.update(
                 boxes_rend=boxes_rend,
                 rend_center_uv=project_points(torch.zeros(bsz, 1, 3).to(K.device), K, TCO),
                 uv=uv,
+                images_cropped=images_cropped,
+                K_crop=K_crop,
                 boxes_crop=boxes_crop,
             )
         return images_cropped, K_crop.detach(), boxes_rend, boxes_crop
@@ -91,17 +95,16 @@ class PosePredictor(nn.Module):
 
     def forward(self, images, K, labels, TCO, n_iterations=1):
         bsz, nchannels, h, w = images.shape
-        print('pose model', images.shape)
         assert K.shape == (bsz, 3, 3)
         assert TCO.shape == (bsz, 4, 4)
         assert len(labels) == bsz
 
         outputs = dict()
         TCO_input = TCO
-        for i in range(len(images)-1):
-            assert (images[i] == images[i+1]).all()
         for n in range(n_iterations):
             TCO_input = TCO_input.detach()
+            logger.info(f"iteration {n}")
+            logger.info(f"tco input {TCO_input}")
             images_crop, K_crop, boxes_rend, boxes_crop = self.crop_inputs(images, K, TCO_input, labels)
             renders = self.renderer.render(obj_infos=[dict(name=l) for l in labels],
                                            TCO=TCO_input,
@@ -120,6 +123,8 @@ class PosePredictor(nn.Module):
                 'model_outputs': model_outputs,
                 'boxes_rend': boxes_rend,
                 'boxes_crop': boxes_crop,
+                'images_crop': images_crop,
+
             }
 
             TCO_input = TCO_output

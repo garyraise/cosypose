@@ -181,9 +181,7 @@ def make_cfg(args):
         cfg.test_ds_names = []
 
         if 'coarse' in args.config:
-            cfg.init_method = 'z-up+auto-depth'
-            cfg.TCO_input_generator = 'fixed+trans_noise'
-            run_comment = 'transnoise-zxyavg'
+            cfg.TCO_input_generator = 'fixed'
         elif 'refiner' in args.config: # train_refiner: true
             cfg.TCO_input_generator = 'gt+noise'
 
