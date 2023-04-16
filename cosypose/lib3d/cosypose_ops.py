@@ -125,11 +125,11 @@ def TCO_init_from_boxes(z_range, boxes, K):
     assert boxes.dim() == 2
     bsz = boxes.shape[0]
     uv_centers = (boxes[:, [0, 1]] + boxes[:, [2, 3]]) / 2
-    print('TCO init', uv_centers)
     z = torch.as_tensor(z_range).mean().unsqueeze(0).unsqueeze(0).repeat(bsz, 1).to(boxes.device).to(boxes.dtype)
     fxfy = K[:, [0, 1], [0, 1]]
     cxcy = K[:, [0, 1], [2, 2]]
     xy_init = ((uv_centers - cxcy) * z) / fxfy
+    print('TCO init', uv_centers, K, boxes, xy_init)
     TCO = torch.eye(4).unsqueeze(0).to(torch.float).to(boxes.device).repeat(bsz, 1, 1)
     TCO[:, :2, 3] = xy_init
     TCO[:, 2, 3] = z.flatten()

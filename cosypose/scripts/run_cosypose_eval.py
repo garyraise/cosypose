@@ -450,7 +450,7 @@ def main():
         n_refiner_iterations = 2
     elif args.config == 'bracket_assembly':
         object_set = 'bracket_assembly'
-        coarse_run_id = f'bracket_assembly_coarse-transnoise-zxyavg-616093'
+        coarse_run_id = f'bracket_assembly_coarse--360104'
         refiner_run_id = 'bracket_assembly_refiner--558735'
         n_coarse_iterations = 1
         n_refiner_iterations = 0
