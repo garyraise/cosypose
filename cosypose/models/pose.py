@@ -33,7 +33,7 @@ class PosePredictor(nn.Module):
         self.pose_fc = nn.Linear(n_features, pose_dim, bias=True)
         self.heads['pose'] = self.pose_fc
 
-        self.debug = True
+        self.debug = False
         self.tmp_debug = dict()
 
     def enable_debug(self):
@@ -61,7 +61,6 @@ class PosePredictor(nn.Module):
         K_crop = get_K_crop_resize(K=K.clone(), boxes=boxes_crop,
                                    orig_size=images.shape[-2:], crop_resize=self.render_size)
         if self.debug:
-            print("points", points)
             self.tmp_debug.update(points=points)
             self.tmp_debug.update(
                 boxes_rend=boxes_rend,
@@ -130,7 +129,7 @@ class PosePredictor(nn.Module):
             TCO_input = TCO_output
 
             if self.debug:
-                self.tmp_debug.update(outputs[f'iteration={n+1}'])
+                self.tmp_debug.update(output=outputs)
                 self.tmp_debug.update(
                     images=images,
                     images_crop=images_crop,
@@ -138,7 +137,6 @@ class PosePredictor(nn.Module):
                 )
                 path = DEBUG_DATA_DIR / f'debug_iter={n+1}.pth.tar'
                 logger.info(f'Wrote debug data: {path}')
-                print(images.shape, images_crop.shape)
                 torch.save(self.tmp_debug, path)
 
         return outputs

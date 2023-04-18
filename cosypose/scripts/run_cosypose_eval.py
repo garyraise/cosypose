@@ -450,10 +450,12 @@ def main():
         n_refiner_iterations = 2
     elif args.config == 'bracket_assembly':
         object_set = 'bracket_assembly'
-        coarse_run_id = f'bracket_assembly_coarse--360104'
-        refiner_run_id = 'bracket_assembly_refiner--558735'
+        # coarse_run_id = f'bracket_assembly_coarse--360104'
+        # refiner_run_id = 'bracket_assembly_refiner--558735'
+        coarse_run_id = f'bracket_assembly_coarse--626765'
+        refiner_run_id = f'bracket_assembly_refiner--990144'
         n_coarse_iterations = 1
-        n_refiner_iterations = 0
+        n_refiner_iterations = 2
     else:
         raise ValueError(args.config)
 
@@ -477,10 +479,12 @@ def main():
         else:
             scene_id = 48
             n_groups = 2
+            scene_id = 0
+            frame_ids = [10,20,30,40]
         n_frames = None
         n_workers = 0
         n_plotters = 0
-    scene_id = 0
+    # scene_id = 0
     n_rand = np.random.randint(1e10)
     save_dir = RESULTS_DIR / f'{args.config}-n_views={n_views}-{args.comment}-{n_rand}'
     logger.info(f"SAVE DIR: {save_dir}")
@@ -490,14 +494,13 @@ def main():
     # Load dataset
     scene_ds = make_scene_dataset(ds_name)
 
-    n_frames = 20 # None
     if scene_id is not None:
         mask = scene_ds.frame_index['scene_id'] == scene_id
         scene_ds.frame_index = scene_ds.frame_index[mask].reset_index(drop=True)
     if n_frames is not None:
         # scene_ds.frame_index = scene_ds.frame_index.reset_index(drop=True)[:n_frames]
-        scene_ds.frame_index = scene_ds.frame_index.reset_index(drop=True)[n_frames:n_frames+1]
-    print('dataset', scene_ds[0])
+        # scene_ds.frame_index = scene_ds.frame_index.reset_index(drop=True)[n_frames:n_frames+1]
+        scene_ds.frame_index = scene_ds.frame_index.iloc[frame_ids,:]
     # Predictions
     predictor, mesh_db = load_models(coarse_run_id, refiner_run_id, n_workers=n_plotters, object_set=object_set)
 

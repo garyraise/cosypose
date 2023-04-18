@@ -87,6 +87,7 @@ class BulletBatchRenderer:
             images = torch.as_tensor(np.stack(images, axis=0))
         images = images.float().permute(0, 3, 1, 2) / 255
 
+        print('render', obj_infos, TCO, K, images.shape)
         if render_depth:
             if self.gpu_renderer:
                 depths = torch.as_tensor(np.stack(depths, axis=0)).pin_memory().cuda(non_blocking=True)
