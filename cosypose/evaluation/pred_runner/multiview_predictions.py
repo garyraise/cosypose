@@ -135,7 +135,6 @@ class MultiviewPredictionRunner:
                 # just load detection from model output
                 data_TCO_init = detections_ if use_detections_TCO else None
                 detections__ = detections_ if not use_detections_TCO else None
-                # print('multiview predict', images.shape)
                 candidates, sv_preds = pose_predictor.get_predictions(
                     images, cameras.K, detections=detections__,
                     n_coarse_iterations=n_coarse_iterations,

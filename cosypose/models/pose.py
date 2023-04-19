@@ -50,9 +50,7 @@ class PosePredictor(nn.Module):
         meshes = self.mesh_db.select(labels)
         points = meshes.sample_points(2000, deterministic=True)
         uv = project_points(points, K, TCO)
-        # logger.info("uv", uv[0])
-        # logger.info("points", points[0,...])
-        logger.info(f"TCO {TCO}")
+        logger.debug(f"TCO {TCO}")
         boxes_rend = boxes_from_uv(uv)
         boxes_crop, images_cropped = deepim_crops(
             images=images, obs_boxes=boxes_rend, K=K,

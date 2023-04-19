@@ -49,7 +49,7 @@ def format_results(predictions,
     df = defaultdict(list)
     summary_txt = ''
     for k, v in eval_metrics.items():
-        logger.info(f"eval_metrics, {k}, {v}")
+        logger.debug(f"eval_metrics, {k}, {v}")
         summary_txt += f"\n{k}\n{'-'*80}\n"
         for k_, v_ in v.items():
             summary[f'{k}/{k_}'] = v_

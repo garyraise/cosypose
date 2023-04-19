@@ -42,7 +42,7 @@ def h_pose(model, mesh_db, data, meters,
     else:
         raise ValueError('Unknown input generator', input_generator)
 
-    model.module.enable_debug()
+    # model.module.enable_debug()
     outputs = model(images=images, K=K, labels=labels,
                     TCO=TCO_init, n_iterations=n_iterations)
     # raise ValueError

@@ -42,7 +42,6 @@ def create_model_pose(cfg, renderer, mesh_db):
                           mesh_db=mesh_db,
                           render_size=render_size,
                           pose_dim=pose_dim)
-    # model.enable_debug()
     return model
 
 

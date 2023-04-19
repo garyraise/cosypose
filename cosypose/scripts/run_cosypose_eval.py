@@ -393,6 +393,8 @@ def load_models(coarse_run_id, refiner_run_id=None, n_workers=8, object_set='tle
         model.load_state_dict(ckpt)
         model = model.cuda().eval()
         model.cfg = cfg
+        if DEBUG:
+            model.enable_debug()
         return model
 
     coarse_model = load_model(coarse_run_id)
@@ -407,7 +409,7 @@ def main():
     loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
     for logger in loggers:
         if 'cosypose' in logger.name:
-            logger.setLevel(logging.DEBUG) # INFO
+            logger.setLevel(logging.INFO)
 
     logger.info("Starting ...")
     init_distributed_mode()
@@ -471,7 +473,10 @@ def main():
     else:
         raise ValueError(args.config)
 
-    if args.debug:
+    global DEBUG
+    DEBUG = False
+    if args.debug:       
+        DEBUG = args.debug
         if 'tless' in args.config:
             scene_id = None
             group_id = 64
@@ -484,7 +489,6 @@ def main():
         n_frames = None
         n_workers = 0
         n_plotters = 0
-    # scene_id = 0
     n_rand = np.random.randint(1e10)
     save_dir = RESULTS_DIR / f'{args.config}-n_views={n_views}-{args.comment}-{n_rand}'
     logger.info(f"SAVE DIR: {save_dir}")
