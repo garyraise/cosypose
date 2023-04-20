@@ -294,6 +294,7 @@ def get_pose_meters(scene_ds):
         n_top = 1
         spheres_overlap_check = False
     elif 'bracket_assembly' in ds_name:
+        compute_add = True
         targets_filename = None
         visib_gt_min = -1
         n_top = 1  # Given by targets
@@ -429,10 +430,10 @@ def main():
     n_plotters = 8
     n_views = 1
 
-    n_frames = None
     scene_id = None
     group_id = None
     n_groups = None
+    frame_ids = None
     n_views = args.n_views
     skip_mv = args.n_views < 2
     skip_predictions = False
@@ -486,7 +487,6 @@ def main():
             n_groups = 2
             scene_id = 0
             frame_ids = [10,20,30,40]
-        n_frames = None
         n_workers = 0
         n_plotters = 0
     n_rand = np.random.randint(1e10)
@@ -501,9 +501,7 @@ def main():
     if scene_id is not None:
         mask = scene_ds.frame_index['scene_id'] == scene_id
         scene_ds.frame_index = scene_ds.frame_index[mask].reset_index(drop=True)
-    if n_frames is not None:
-        # scene_ds.frame_index = scene_ds.frame_index.reset_index(drop=True)[:n_frames]
-        # scene_ds.frame_index = scene_ds.frame_index.reset_index(drop=True)[n_frames:n_frames+1]
+    if frame_ids is not None:
         scene_ds.frame_index = scene_ds.frame_index.iloc[frame_ids,:]
     # Predictions
     predictor, mesh_db = load_models(coarse_run_id, refiner_run_id, n_workers=n_plotters, object_set=object_set)
@@ -563,7 +561,6 @@ def main():
     for pred_prefix, pred_kwargs_n in pred_kwargs.items():
         logger.info(f"Prediction: {pred_prefix}")
         preds = pred_runner.get_predictions(**pred_kwargs_n)
-        logger.info(f"preds, {preds}")
         for preds_name, preds_n in preds.items():
             all_predictions[f'{pred_prefix}/{preds_name}'] = preds_n
 

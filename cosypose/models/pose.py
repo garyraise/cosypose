@@ -59,7 +59,7 @@ class PosePredictor(nn.Module):
         K_crop = get_K_crop_resize(K=K.clone(), boxes=boxes_crop,
                                    orig_size=images.shape[-2:], crop_resize=self.render_size)
         if self.debug:
-            self.tmp_debug.update(points=points)
+            # self.tmp_debug.update(points=points)
             self.tmp_debug.update(
                 boxes_rend=boxes_rend,
                 rend_center_uv=project_points(torch.zeros(bsz, 1, 3).to(K.device), K, TCO),
@@ -101,7 +101,7 @@ class PosePredictor(nn.Module):
         for n in range(n_iterations):
             TCO_input = TCO_input.detach()
             logger.info(f"iteration {n}")
-            logger.info(f"tco input {TCO_input}")
+            logger.debug(f"tco input {TCO_input}")
             images_crop, K_crop, boxes_rend, boxes_crop = self.crop_inputs(images, K, TCO_input, labels)
             renders = self.renderer.render(obj_infos=[dict(name=l) for l in labels],
                                            TCO=TCO_input,
