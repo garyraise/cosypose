@@ -10,6 +10,7 @@ class BOPObjectDataset:
         infos = json.loads(infos_file.read_text())
         objects = []
         for obj_id, bop_info in infos.items():
+            # just load one model (nut: obj_id = obj_000005)
             obj_id = int(obj_id)
             obj_label = f'obj_{obj_id:06d}'
             mesh_path = (ds_dir / obj_label).with_suffix('.ply').as_posix()
@@ -19,6 +20,8 @@ class BOPObjectDataset:
                 mesh_path=mesh_path,
                 mesh_units=mesh_units, # mm for tless
             )
+            # TODO: for bracket assembly
+            # set everything to false
             is_symmetric = False
             for k in ('symmetries_discrete', 'symmetries_continuous'):
                 obj[k] = bop_info.get(k, [])

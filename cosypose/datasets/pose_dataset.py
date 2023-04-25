@@ -90,6 +90,7 @@ class PoseDataset(torch.utils.data.Dataset):
         mask_uniqs = set(np.unique(mask))
         objects_visible = []
         for obj in state['objects']:
+            # TODO: only load nut, filter by obj['id_in_segm']
             add = False
             if obj['id_in_segm'] in mask_uniqs and np.all(np.array(obj['bbox']) >= 0):
                 add = True

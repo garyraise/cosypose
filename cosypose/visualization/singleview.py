@@ -1,6 +1,6 @@
 import numpy as np
 
-from .plotter import Plotter
+from cosypose.visualization.plotter import Plotter
 
 import cv2
 import os
@@ -48,7 +48,6 @@ def render_prediction_wrt_camera(renderer, pred, camera=None, resolution=(640, 4
     return rgb_rendered
 
 def make_singleview_prediction_matplotlib(scene_ds, renderer, predictions, detections=None, resolution=(640, 480)):
-
     scene_id, view_id = np.unique(predictions.infos['scene_id']).item(), np.unique(predictions.infos['view_id']).item()
 
     scene_ds_index = scene_ds.frame_index
@@ -105,10 +104,10 @@ class VisualizeSingleView():
         self.scene_ds = make_scene_dataset(ds_name)
         self.results = torch.load(results)['predictions']
         LOCAL_DATA = Path('/home/ubuntu/synthetic_pose_estimation/cosypose/local_data')
-        VIZ_DATA_DIR = LOCAL_DATA / 'visualizations'
+        self.VIZ_DATA_DIR = LOCAL_DATA / 'visualizations' / self.result_id
         self.renderer = BulletSceneRenderer(self.urdf_ds_name)
-        if not os.path.exists(VIZ_DATA_DIR):
-            os.mkdir(VIZ_DATA_DIR)
+        if not os.path.exists(self.VIZ_DATA_DIR):
+            os.mkdir(self.VIZ_DATA_DIR)
 
     def visualize_single(self, scene_id, view_id):
         plt.figure()
@@ -119,6 +118,7 @@ class VisualizeSingleView():
             ax[pred_id][1].title.set_text(pred_key)
             ax[pred_id][0].imshow(rgb_input)
             ax[pred_id][1].imshow(pred_rendered)
+        plt.savefig(self.VIZ_DATA_DIR / f'viz_{scene_id}_{view_id}.png')
 
 
 if __name__ == '__main__':
@@ -126,17 +126,17 @@ if __name__ == '__main__':
     import random
     #Generate 5 random numbers between 10 and 30
     random.seed(0)
-    random_scenes = random.sample(range(0, 5), 5)
-    random_views = random.sample(range(0, 30), 5)
+    random_scenes = random.choices([0,1,2], k=5)
+    random_views = random.sample(range(0, 100), 60)
     print(random_scenes, random_views)
 
-    scene_id, view_id = 3, 26
-    viz.visualize_single(scene_id, view_id)
-    # for scene_id in random_scenes:
-    #     for view_id in random_views:
-    #         print(scene_id, view_id)
-    #         try:
-    #             viz.visualize_single(scene_id, view_id)
-    #             print("Sucess",scene_id, view_id)
-    #         except Exception as e:
-    #             print("Failed",scene_id, view_id, e)
+    # scene_id, view_id = 2, 26
+    # viz.visualize_single(scene_id, view_id)
+    for scene_id in random_scenes:
+        for view_id in random_views:
+            # print(scene_id, view_id)
+            try:
+                viz.visualize_single(scene_id, view_id)
+                print("Sucess",scene_id, view_id)
+            except Exception as e:
+                print("Failed",scene_id, view_id, e)
