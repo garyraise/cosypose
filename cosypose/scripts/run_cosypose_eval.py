@@ -157,8 +157,6 @@ def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None):
         with open(path_scene_gt_camera, "r") as f:
             json_gt_camera = json.load(f)
         img_names_rgb = os.listdir(os.path.join(path_scene_dir, scene_name, "rgb"))
-        # todo
-        # scene_camera = load_scene_camera(path_scene_gt_camera)
         from cosypose.lib3d import Transform
         for img_id, img_name in enumerate(img_names_rgb[:-1]):
             if not f"{img_id}" in json_data_gt_info:
@@ -167,7 +165,6 @@ def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None):
                 continue
             if not f"{img_id}" in json_gt_camera:
                 continue
-            # cam_R_w2c = scene_camera[img_id]["cam_R_w2c"]
             # TODO
             cam_R_w2c = json_gt_camera[f"{img_id}"]["cam_R_w2c"]
             cam_t_w2c = json_gt_camera[f"{img_id}"]["cam_t_w2c"]
@@ -176,20 +173,10 @@ def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None):
             row2 = [cam_R_w2c[6], cam_R_w2c[7], cam_R_w2c[8], cam_t_w2c[2]]           
             row3 = [0, 0, 0, 1]
             cam_rot_loc_mat = np.asarray([row0, row1, row2, row3])
-
-
-            if 'cam_R_w2c' in json_gt_camera[f"{img_id}"]:
-                RC0 = np.array(json_gt_camera[f"{img_id}"]['cam_R_w2c']).reshape(3, 3)
-                tC0 = np.array(json_gt_camera[f"{img_id}"]['cam_t_w2c'])# * 0.001
-                TC0 = Transform(RC0, tC0)
-                T0C = TC0.inverse()
-                T0C = T0C.toHomogeneousMatrix()
             for label_idx, label in enumerate(json_data_gt[f"{img_id}"]):
-                
-
+                # TODO: only load object with 0006
                 obj_id = label["obj_id"] # int
                 list_bbox = json_data_gt_info[f"{img_id}"][label_idx]["bbox_visib"] # TODO: ?
-
                 xmin = list_bbox[0]
                 ymin = list_bbox[1]
                 xmax = list_bbox[0] +  list_bbox[2]
@@ -197,11 +184,6 @@ def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None):
                 list_bbox = [xmin, ymin, xmax, ymax]
                 list_rot  = json_data_gt[f"{img_id}"][label_idx]["cam_R_m2c"]
                 list_loc  = json_data_gt[f"{img_id}"][label_idx]["cam_t_m2c"]
-                # RCO = np.array(json_data_gt[f"{img_id}"][label_idx]['cam_R_m2c']).reshape(3, 3)
-                # tCO = np.array(json_data_gt[f"{img_id}"][label_idx]['cam_t_m2c']) #* 0.001
-                # TCO = Transform(RCO, tCO)
-                # T0O = T0C * TCO
-                # T0O = T0O.toHomogeneousMatrix()
 
                 row0 = [list_rot[0], list_rot[1], list_rot[2], list_loc[0]] 
                 row1 = [list_rot[3], list_rot[4], list_rot[5], list_loc[1]]
@@ -218,7 +200,6 @@ def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None):
                         score=1,
                         label=f"obj_{obj_id:06d}",
                     ))
-                # poses.append(T0O)
                 poses.append(rot_loc_mat)
                 bboxes.append(list_bbox)
     data = tc.PandasTensorCollection(

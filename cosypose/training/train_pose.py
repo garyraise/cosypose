@@ -109,7 +109,6 @@ def make_eval_bundle(args, model_training):
         skip_mv=True,
     )
     for ds_name in args.test_ds_names:
-        print("ds_name", ds_name)
         assert ds_name in {'ycbv.test.keyframes', 'tless.primesense.test', 'bracket_assembly'}
         scene_ds = make_scene_dataset(ds_name, n_frames=args.n_test_frames)
         logger.info(f'TEST: Loaded {ds_name} with {len(scene_ds)} images.')
@@ -136,12 +135,15 @@ def make_eval_bundle(args, model_training):
             coarse_k = 'posecnn_coarse'
         elif 'bracket_assembly' in ds_name:
             bracket_detections = load_custom_detection_from_gt().cpu()
-            pred_kwargs = {
-                'pix2pose_detections': dict(
-                    detections=bracket_detections,
-                    **base_pred_kwargs
-                )
-            }
+            print("bracket_detections", bracket_detections)
+            # pred_kwargs = {
+            #     'pix2pose_detections': dict(
+            #         detections=bracket_detections,
+            #         **base_pred_kwargs
+            #     )
+            # }
+            detections = bracket_detections
+            coarse_detections = bracket_detections
             det_k = 'pix2pose_detections'
             coarse_k = 'pix2pose_coarse'
         else:
