@@ -89,16 +89,16 @@ def make_cfg(args):
             raise ValueError
 
         cfg.val_ds_names = cfg.train_ds_names
-        cfg.urdf_ds_name = bop_cfg['urdf_ds_name']
-        cfg.object_ds_name = bop_cfg['obj_ds_name']
+        cfg.urdf_ds_name = bop_cfg['urdf_ds_name'] # bracket_assembly
+        cfg.object_ds_name = bop_cfg['obj_ds_name'] # bracket_assembly
         cfg.input_resize = bop_cfg['input_resize']
         cfg.test_ds_names = []
-
+    
         if model_type == 'coarse':
             cfg.init_method = 'z-up+auto-depth'
             cfg.TCO_input_generator = 'fixed+trans_noise'
             run_comment = 'transnoise-zxyavg'
-        elif model_type == 'refiner':
+        elif model_type == 'refiner': # train_refiner: true
             cfg.TCO_input_generator = 'gt+noise'
         else:
             raise ValueError
@@ -178,9 +178,13 @@ def make_cfg(args):
         cfg.urdf_ds_name = bop_cfg['urdf_ds_name']
         cfg.object_ds_name = bop_cfg['obj_ds_name']
         cfg.input_resize = bop_cfg['input_resize']
-        cfg.test_ds_names = []
-
-        cfg.TCO_input_generator = 'gt+noise'
+        cfg.test_ds_names = [("bracket_assembly", 1)]
+        cfg.val_epoch_interval = 50
+        cfg.n_test_frames = 100
+        if 'coarse' in args.config:
+            cfg.TCO_input_generator = 'fixed'
+        elif 'refiner' in args.config: # train_refiner: true
+            cfg.TCO_input_generator = 'gt+noise'
 
     elif args.resume:
         pass

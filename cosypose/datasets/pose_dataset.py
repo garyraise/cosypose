@@ -90,6 +90,7 @@ class PoseDataset(torch.utils.data.Dataset):
         mask_uniqs = set(np.unique(mask))
         objects_visible = []
         for obj in state['objects']:
+            # TODO: only load nut, filter by obj['id_in_segm']
             add = False
             if obj['id_in_segm'] in mask_uniqs and np.all(np.array(obj['bbox']) >= 0):
                 add = True
@@ -131,10 +132,10 @@ class PoseDataset(torch.utils.data.Dataset):
         while not valid:
             if n_attempts > 10:
                 raise ValueError('Cannot find valid image in the dataset')
-            try:
-                data = self.get_data(try_index)
-                valid = True
-            except NoObjectError:
-                try_index = random.randint(0, len(self.scene_ds) - 1)
-                n_attempts += 1
+            # try:
+            data = self.get_data(try_index)
+            valid = True
+            # except NoObjectError:
+            #     try_index = random.randint(0, len(self.scene_ds) - 1)
+            #     n_attempts += 1
         return data

@@ -30,6 +30,7 @@ def keep_bop19(ds):
 
 
 def make_scene_dataset(ds_name, n_frames=None):
+    '''return a dataframe? with index for each frame'''
     # TLESS
     if ds_name == 'tless.primesense.train':
         ds = _make_tless_dataset('train_primesense')
@@ -180,7 +181,7 @@ def make_object_dataset(ds_name):
     elif ds_name == 'tudl':
         ds = BOPObjectDataset(BOP_DS_DIR / 'tudl/models')
     elif ds_name == 'bracket_assembly':
-        ds = BOPObjectDataset(BOP_DS_DIR / 'bracket_assembly/models')
+        ds = BOPObjectDataset(BOP_DS_DIR / 'bracket_assembly/models', mesh_units='m')
 
     else:
         raise ValueError(ds_name)

@@ -1,5 +1,6 @@
 from cosypose.utils.tqdm import patch_tqdm; patch_tqdm()  # noqa
 import torch.multiprocessing
+import os
 import time
 import json
 
@@ -46,6 +47,52 @@ torch.multiprocessing.set_sharing_strategy('file_system')
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
+@MEMORY.cache
+def load_flownet_results():
+    # TODO: args.run_id args.type
+    results_path = LOCAL_DATA_DIR /'results' / 'bop---356706' / 'dataset=bracket_assembly'
+    results = pkl.loads(results_path.read_bytes())
+    infos, poses, bboxes = [], [], []
+
+    l_offsets = (LOCAL_DATA_DIR / 'bop_datasets/ycbv' / 'offsets.txt').read_text().strip().split('\n')
+    ycb_offsets = dict()
+    for l_n in l_offsets:
+        obj_id, offset = l_n[:2], l_n[3:]
+        obj_id = int(obj_id)
+        offset = np.array(json.loads(offset)) * 0.001
+        ycb_offsets[obj_id] = offset
+
+    def mat_from_qt(qt):
+        wxyz = qt[:4].copy().tolist()
+        xyzw = [*wxyz[1:], wxyz[0]]
+        t = qt[4:].copy()
+        return Transform(xyzw, t)
+
+    for scene_view_str, result in results.items():
+        scene_id, view_id = scene_view_str.split('/')
+        scene_id, view_id = int(scene_id), int(view_id)
+        n_dets = result['rois'].shape[0]
+        for n in range(n_dets):
+            obj_id = result['rois'][:, 1].astype(np.int)[n]
+            label = f'obj_{obj_id:06d}'
+            infos.append(dict(
+                scene_id=scene_id,
+                view_id=view_id,
+                score=result['rois'][n, 1],
+                label=label,
+            ))
+            bboxes.append(result['rois'][n, 2:6])
+            pose = mat_from_qt(result['poses'][n])
+            offset = ycb_offsets[obj_id]
+            pose = pose * Transform((0, 0, 0, 1), offset).inverse()
+            poses.append(pose.toHomogeneousMatrix())
+
+    data = tc.PandasTensorCollection(
+        infos=pd.DataFrame(infos),
+        poses=torch.as_tensor(np.stack(poses)).float(),
+        bboxes=torch.as_tensor(np.stack(bboxes)).float(),
+    ).cpu()
+    return data
 
 @MEMORY.cache
 def load_posecnn_results():
@@ -93,6 +140,93 @@ def load_posecnn_results():
     ).cpu()
     return data
 
+@MEMORY.cache
+def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None):
+    path_data_dir = LOCAL_DATA_DIR / 'bop_datasets' / 'bracket_assembly'
+    path_scene_dir = os.path.join(path_data_dir, "train_pbr")
+    scene_names = os.listdir(path_scene_dir)
+    infos, poses, bboxes = [], [], []
+    for scene_id, scene_name in enumerate(scene_names):
+        path_scene_gt_info = os.path.join(path_scene_dir, scene_name, "scene_gt_info.json")
+        path_scene_gt = os.path.join(path_scene_dir, scene_name, "scene_gt.json")
+        path_scene_gt_camera = os.path.join(path_scene_dir, scene_name, "scene_camera.json")
+        with open(path_scene_gt_info, "r") as f:
+            json_data_gt_info = json.load(f)
+        with open(path_scene_gt, "r") as f:
+            json_data_gt = json.load(f)
+        with open(path_scene_gt_camera, "r") as f:
+            json_gt_camera = json.load(f)
+        img_names_rgb = os.listdir(os.path.join(path_scene_dir, scene_name, "rgb"))
+        # todo
+        # scene_camera = load_scene_camera(path_scene_gt_camera)
+        from cosypose.lib3d import Transform
+        for img_id, img_name in enumerate(img_names_rgb[:-1]):
+            if not f"{img_id}" in json_data_gt_info:
+                continue
+            if not f"{img_id}" in json_data_gt:
+                continue
+            if not f"{img_id}" in json_gt_camera:
+                continue
+            # cam_R_w2c = scene_camera[img_id]["cam_R_w2c"]
+            # TODO
+            cam_R_w2c = json_gt_camera[f"{img_id}"]["cam_R_w2c"]
+            cam_t_w2c = json_gt_camera[f"{img_id}"]["cam_t_w2c"]
+            row0 = [cam_R_w2c[0], cam_R_w2c[1], cam_R_w2c[2], cam_t_w2c[0]] 
+            row1 = [cam_R_w2c[3], cam_R_w2c[4], cam_R_w2c[5], cam_t_w2c[1]]
+            row2 = [cam_R_w2c[6], cam_R_w2c[7], cam_R_w2c[8], cam_t_w2c[2]]           
+            row3 = [0, 0, 0, 1]
+            cam_rot_loc_mat = np.asarray([row0, row1, row2, row3])
+
+
+            if 'cam_R_w2c' in json_gt_camera[f"{img_id}"]:
+                RC0 = np.array(json_gt_camera[f"{img_id}"]['cam_R_w2c']).reshape(3, 3)
+                tC0 = np.array(json_gt_camera[f"{img_id}"]['cam_t_w2c'])# * 0.001
+                TC0 = Transform(RC0, tC0)
+                T0C = TC0.inverse()
+                T0C = T0C.toHomogeneousMatrix()
+            for label_idx, label in enumerate(json_data_gt[f"{img_id}"]):
+                
+
+                obj_id = label["obj_id"] # int
+                list_bbox = json_data_gt_info[f"{img_id}"][label_idx]["bbox_visib"] # TODO: ?
+
+                xmin = list_bbox[0]
+                ymin = list_bbox[1]
+                xmax = list_bbox[0] +  list_bbox[2]
+                ymax = list_bbox[1] +  list_bbox[3]
+                list_bbox = [xmin, ymin, xmax, ymax]
+                list_rot  = json_data_gt[f"{img_id}"][label_idx]["cam_R_m2c"]
+                list_loc  = json_data_gt[f"{img_id}"][label_idx]["cam_t_m2c"]
+                # RCO = np.array(json_data_gt[f"{img_id}"][label_idx]['cam_R_m2c']).reshape(3, 3)
+                # tCO = np.array(json_data_gt[f"{img_id}"][label_idx]['cam_t_m2c']) #* 0.001
+                # TCO = Transform(RCO, tCO)
+                # T0O = T0C * TCO
+                # T0O = T0O.toHomogeneousMatrix()
+
+                row0 = [list_rot[0], list_rot[1], list_rot[2], list_loc[0]] 
+                row1 = [list_rot[3], list_rot[4], list_rot[5], list_loc[1]]
+                row2 = [list_rot[6], list_rot[7], list_rot[8], list_loc[2]]
+                row3 = [0, 0, 0, 1]
+                rot_loc_mat = np.asarray([row0, row1, row2, row3])
+                rot_loc_mat = np.matmul(np.linalg.inv(cam_rot_loc_mat), rot_loc_mat)
+                if scene_id == 0 and img_id == 20:
+                    logger.info(f"label_idx {label_idx}")
+                    logger.info(f"rot_loc_mat {rot_loc_mat}")
+                infos.append(dict(
+                        scene_id=scene_id,
+                        view_id=img_id,
+                        score=1,
+                        label=f"obj_{obj_id:06d}",
+                    ))
+                # poses.append(T0O)
+                poses.append(rot_loc_mat)
+                bboxes.append(list_bbox)
+    data = tc.PandasTensorCollection(
+        infos=pd.DataFrame(infos),
+        poses=torch.as_tensor(np.stack(poses)).float(),
+        bboxes=torch.as_tensor(np.stack(bboxes)).float(),
+    ).cpu()
+    return data
 
 @MEMORY.cache
 def load_pix2pose_results(all_detections=True, remove_incorrect_poses=False):
@@ -101,6 +235,7 @@ def load_pix2pose_results(all_detections=True, remove_incorrect_poses=False):
     else:
         results_path = LOCAL_DATA_DIR / 'saved_detections' / 'tless_pix2pose_retinanet_siso_top1.pkl'
     pix2pose_results = pkl.loads(results_path.read_bytes())
+    
     infos, poses, bboxes = [], [], []
     for key, result in pix2pose_results.items():
         scene_id, view_id = key.split('/')
@@ -143,6 +278,7 @@ def get_pose_meters(scene_ds):
     compute_add = False
     spheres_overlap_check = True
     large_match_threshold_diameter_ratio = 0.5
+    print("ds_name", ds_name)
     if ds_name == 'tless.primesense.test.bop19':
         targets_filename = 'test_targets_bop19.json'
         visib_gt_min = -1
@@ -157,6 +293,12 @@ def get_pose_meters(scene_ds):
         targets_filename = None
         n_top = 1
         spheres_overlap_check = False
+    elif 'bracket_assembly' in ds_name:
+        compute_add = True
+        targets_filename = None
+        visib_gt_min = -1
+        n_top = 1  # Given by targets
+        spheres_overlap_check = False
     else:
         raise ValueError
 
@@ -164,6 +306,8 @@ def get_pose_meters(scene_ds):
         object_ds_name = 'tless.eval'
     elif 'ycbv' in ds_name:
         object_ds_name = 'ycbv.bop-compat.eval'  # This is important for definition of symmetric objects
+    elif 'bracket_assembly' in ds_name:
+        object_ds_name = 'bracket_assembly'
     else:
         raise ValueError
 
@@ -175,6 +319,7 @@ def get_pose_meters(scene_ds):
         targets = None
 
     object_ds = make_object_dataset(object_ds_name)
+    print("object_ds_name", object_ds_name)
     mesh_db = MeshDataBase.from_object_ds(object_ds)
 
     error_types = ['ADD-S'] + (['ADD(-S)'] if compute_add else [])
@@ -194,6 +339,8 @@ def get_pose_meters(scene_ds):
     # sample less points
     base_kwargs = dict(
         mesh_db=mesh_db,
+        # exact_meshes=True,
+        # sample_n_points=None,
         exact_meshes=False,
         sample_n_points=100,
         errors_bsz=1,
@@ -260,12 +407,15 @@ def load_models(coarse_run_id, refiner_run_id=None, n_workers=8, object_set='tle
         model.load_state_dict(ckpt)
         model = model.cuda().eval()
         model.cfg = cfg
+        if DEBUG:
+            model.enable_debug()
         return model
 
     coarse_model = load_model(coarse_run_id)
     refiner_model = load_model(refiner_run_id)
     model = CoarseRefinePosePredictor(coarse_model=coarse_model,
                                       refiner_model=refiner_model)
+    # print("mesh_db",object_ds, mesh_db)
     return model, mesh_db
 
 
@@ -273,7 +423,7 @@ def main():
     loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
     for logger in loggers:
         if 'cosypose' in logger.name:
-            logger.setLevel(logging.DEBUG)
+            logger.setLevel(logging.INFO)
 
     logger.info("Starting ...")
     init_distributed_mode()
@@ -284,6 +434,7 @@ def main():
     parser.add_argument('--job_dir', default='', type=str)
     parser.add_argument('--comment', default='', type=str)
     parser.add_argument('--nviews', dest='n_views', default=1, type=int)
+    parser.add_argument('--coarse_run_id', dest='coarse_run_id', default=131619, type=int)
     args = parser.parse_args()
 
     coarse_run_id = None
@@ -292,14 +443,15 @@ def main():
     n_plotters = 8
     n_views = 1
 
-    n_frames = None
     scene_id = None
     group_id = None
     n_groups = None
+    frame_ids = None
     n_views = args.n_views
     skip_mv = args.n_views < 2
     skip_predictions = False
-
+    if args.coarse_run_id:
+        coarse_run_id = args.coarse_run_id
     object_set = 'tless'
     if 'tless' in args.config:
         object_set = 'tless'
@@ -314,10 +466,12 @@ def main():
         n_refiner_iterations = 2
     elif args.config == 'bracket_assembly':
         object_set = 'bracket_assembly'
-        refiner_run_id = 'bracket_assembly_refiner--558735'
-        # coarse_run_id = 'bracket_assembly--772735'
+        # coarse_run_id = f'bracket_assembly_coarse--360104'
+        # refiner_run_id = 'bracket_assembly_refiner--558735'
+        coarse_run_id = f'bracket_assembly_coarse--626765'
+        refiner_run_id = f'bracket_assembly_refiner--990144'
         n_coarse_iterations = 1
-        n_refiner_iterations = 0
+        n_refiner_iterations = 2
     else:
         raise ValueError(args.config)
 
@@ -329,11 +483,14 @@ def main():
     elif args.config == 'ycbv':
         ds_name = 'ycbv.test.keyframes'
     elif args.config == 'bracket_assembly':
-        ds_name = 'bracket_assembly'
+        ds_name = 'bracket_assembly' 
     else:
         raise ValueError(args.config)
 
-    if args.debug:
+    global DEBUG
+    DEBUG = False
+    if args.debug:       
+        DEBUG = args.debug
         if 'tless' in args.config:
             scene_id = None
             group_id = 64
@@ -341,10 +498,10 @@ def main():
         else:
             scene_id = 48
             n_groups = 2
-        n_frames = None
+            scene_id = 0
+            frame_ids = [10,20,30,40]
         n_workers = 0
         n_plotters = 0
-
     n_rand = np.random.randint(1e10)
     save_dir = RESULTS_DIR / f'{args.config}-n_views={n_views}-{args.comment}-{n_rand}'
     logger.info(f"SAVE DIR: {save_dir}")
@@ -357,14 +514,12 @@ def main():
     if scene_id is not None:
         mask = scene_ds.frame_index['scene_id'] == scene_id
         scene_ds.frame_index = scene_ds.frame_index[mask].reset_index(drop=True)
-    if n_frames is not None:
-        scene_ds.frame_index = scene_ds.frame_index[mask].reset_index(drop=True)[:n_frames]
-
+    if frame_ids is not None:
+        scene_ds.frame_index = scene_ds.frame_index.iloc[frame_ids,:]
     # Predictions
     predictor, mesh_db = load_models(coarse_run_id, refiner_run_id, n_workers=n_plotters, object_set=object_set)
 
     mv_predictor = MultiviewScenePredictor(mesh_db)
-
     base_pred_kwargs = dict(
         n_coarse_iterations=n_coarse_iterations,
         n_refiner_iterations=n_refiner_iterations,
@@ -372,16 +527,25 @@ def main():
         pose_predictor=predictor,
         mv_predictor=mv_predictor,
     )
-
+    skip_predictions = False
     if skip_predictions:
         pred_kwargs = {}
+    elif 'bracket_assembly' in ds_name:
+        bracket_detections = load_custom_detection_from_gt().cpu()
+        pred_kwargs = {
+            'pix2pose_detections': dict(
+                detections=bracket_detections,
+                # use_detections_TCO=posecnn_detections,
+                **base_pred_kwargs
+            )
+        }
     elif 'tless' in ds_name:
         pix2pose_detections = load_pix2pose_results(all_detections='bop19' in ds_name).cpu()
         pred_kwargs = {
             'pix2pose_detections': dict(
                 detections=pix2pose_detections,
                 **base_pred_kwargs
-            ),
+            )
         }
     elif 'ycbv' in ds_name:
         posecnn_detections = load_posecnn_results()
@@ -396,7 +560,6 @@ def main():
         raise ValueError(ds_name)
 
     scene_ds_pred = MultiViewWrapper(scene_ds, n_views=n_views)
-
     if group_id is not None:
         mask = scene_ds_pred.frame_index['group_id'] == group_id
         scene_ds_pred.frame_index = scene_ds_pred.frame_index[mask].reset_index(drop=True)
@@ -423,11 +586,16 @@ def main():
         det_key = 'posecnn_init'
         all_predictions['posecnn'] = posecnn_detections
         predictions_to_evaluate.add('posecnn')
+        predictions_to_evaluate.add(f'{det_key}/refiner/iteration={n_refiner_iterations}')
     elif 'tless' in ds_name:
         det_key = 'pix2pose_detections'
+        predictions_to_evaluate.add(f'{det_key}/refiner/iteration={n_refiner_iterations}')
+    elif 'bracket_assembly' in ds_name: # BOP dataset
+        det_key = 'pix2pose_detections'
+        predictions_to_evaluate.add(f'{det_key}/coarse/iteration=1')
+        predictions_to_evaluate.add(f'{det_key}/refiner/iteration={n_refiner_iterations}')
     else:
         raise ValueError(ds_name)
-    predictions_to_evaluate.add(f'{det_key}/refiner/iteration={n_refiner_iterations}')
 
     if args.n_views > 1:
         for k in [
@@ -438,7 +606,6 @@ def main():
             predictions_to_evaluate.add(f'{det_key}/{k}')
 
     all_predictions = OrderedDict({k: v for k, v in sorted(all_predictions.items(), key=lambda item: item[0])})
-
     # Evaluation.
     meters = get_pose_meters(scene_ds)
     mv_group_ids = list(iter(pred_runner.sampler))
@@ -471,7 +638,7 @@ def main():
             f'{det_key}/ba_output+all_cand/ADD(-S)_ntop=1_matching=CLASS/AUC/objects/mean': f'Multiview (n={args.n_views})/AUC of ADD(-S)',
             f'{det_key}/ba_output+all_cand/ADD-S_ntop=1_matching=CLASS/AUC/objects/mean': f'Multiview (n={args.n_views})/AUC of ADD-S',
         })
-    elif 'tless' in ds_name:
+    elif 'bracket_assembly'  in ds_name or 'tless' in ds_name:
         metrics_to_print.update({
             f'{det_key}/refiner/iteration={n_refiner_iterations}/ADD-S_ntop=BOP_matching=OVERLAP/AUC/objects/mean': f'Singleview/AUC of ADD-S',
             # f'{det_key}/refiner/iteration={n_refiner_iterations}/ADD-S_ntop=BOP_matching=BOP/0.1d': f'Singleview/ADD-S<0.1d',
@@ -489,11 +656,11 @@ def main():
         f'{det_key}/ba_input/ADD-S_ntop=BOP_matching=OVERLAP/norm': f'Multiview before BA/ADD-S (m)',
         f'{det_key}/ba_output/ADD-S_ntop=BOP_matching=OVERLAP/norm': f'Multiview after BA/ADD-S (m)',
     })
-
     if get_rank() == 0:
         save_dir.mkdir()
-        results = format_results(all_predictions, eval_metrics, eval_dfs, print_metrics=False)
+        results = format_results(all_predictions, eval_metrics, eval_dfs, print_metrics=True)
         (save_dir / 'full_summary.txt').write_text(results.get('summary_txt', ''))
+        print("results,all_predictions, all_predictions", results, all_predictions, eval_dfs)
 
         full_summary = results['summary']
         summary_txt = 'Results:'
@@ -510,8 +677,8 @@ def main():
 
 
 if __name__ == '__main__':
-    patch_tqdm()
+    # patch_tqdm()
     main()
-    time.sleep(2)
+    # time.sleep(2)
     if get_world_size() > 1:
         torch.distributed.barrier()

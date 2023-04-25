@@ -50,6 +50,7 @@ class PosePredictor(nn.Module):
         meshes = self.mesh_db.select(labels)
         points = meshes.sample_points(2000, deterministic=True)
         uv = project_points(points, K, TCO)
+        logger.debug(f"TCO {TCO}")
         boxes_rend = boxes_from_uv(uv)
         boxes_crop, images_cropped = deepim_crops(
             images=images, obs_boxes=boxes_rend, K=K,
@@ -58,10 +59,13 @@ class PosePredictor(nn.Module):
         K_crop = get_K_crop_resize(K=K.clone(), boxes=boxes_crop,
                                    orig_size=images.shape[-2:], crop_resize=self.render_size)
         if self.debug:
+            # self.tmp_debug.update(points=points)
             self.tmp_debug.update(
                 boxes_rend=boxes_rend,
                 rend_center_uv=project_points(torch.zeros(bsz, 1, 3).to(K.device), K, TCO),
                 uv=uv,
+                images_cropped=images_cropped,
+                K_crop=K_crop,
                 boxes_crop=boxes_crop,
             )
         return images_cropped, K_crop.detach(), boxes_rend, boxes_crop
@@ -96,6 +100,8 @@ class PosePredictor(nn.Module):
         TCO_input = TCO
         for n in range(n_iterations):
             TCO_input = TCO_input.detach()
+            logger.info(f"iteration {n}")
+            logger.debug(f"tco input {TCO_input}")
             images_crop, K_crop, boxes_rend, boxes_crop = self.crop_inputs(images, K, TCO_input, labels)
             renders = self.renderer.render(obj_infos=[dict(name=l) for l in labels],
                                            TCO=TCO_input,
@@ -114,12 +120,14 @@ class PosePredictor(nn.Module):
                 'model_outputs': model_outputs,
                 'boxes_rend': boxes_rend,
                 'boxes_crop': boxes_crop,
+                'images_crop': images_crop,
+
             }
 
             TCO_input = TCO_output
 
             if self.debug:
-                self.tmp_debug.update(outputs[f'iteration={n+1}'])
+                self.tmp_debug.update(output=outputs)
                 self.tmp_debug.update(
                     images=images,
                     images_crop=images_crop,
