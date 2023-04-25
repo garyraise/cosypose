@@ -26,7 +26,7 @@ from cosypose.evaluation.eval_runner.pose_eval import PoseEvaluation
 from cosypose.evaluation.runner_utils import run_pred_eval
 from cosypose.datasets.wrappers.multiview_wrapper import MultiViewWrapper
 from cosypose.scripts.run_cosypose_eval import (
-    load_pix2pose_results, load_posecnn_results, get_pose_meters)
+    load_pix2pose_results, load_posecnn_results, load_custom_detection_from_gt, get_pose_meters)
 
 from cosypose.rendering.bullet_batch_renderer import BulletBatchRenderer
 from cosypose.lib3d.rigid_mesh_database import MeshDataBase
@@ -109,7 +109,8 @@ def make_eval_bundle(args, model_training):
         skip_mv=True,
     )
     for ds_name in args.test_ds_names:
-        assert ds_name in {'ycbv.test.keyframes', 'tless.primesense.test'}
+        print("ds_name", ds_name)
+        assert ds_name in {'ycbv.test.keyframes', 'tless.primesense.test', 'bracket_assembly'}
         scene_ds = make_scene_dataset(ds_name, n_frames=args.n_test_frames)
         logger.info(f'TEST: Loaded {ds_name} with {len(scene_ds)} images.')
         scene_ds_pred = MultiViewWrapper(scene_ds, n_views=1)
@@ -133,7 +134,16 @@ def make_eval_bundle(args, model_training):
             coarse_detections = detections
             det_k = 'posecnn_detections'
             coarse_k = 'posecnn_coarse'
-
+        elif 'bracket_assembly' in ds_name:
+            bracket_detections = load_custom_detection_from_gt().cpu()
+            pred_kwargs = {
+                'pix2pose_detections': dict(
+                    detections=bracket_detections,
+                    **base_pred_kwargs
+                )
+            }
+            det_k = 'pix2pose_detections'
+            coarse_k = 'pix2pose_coarse'
         else:
             raise ValueError(ds_name)
 

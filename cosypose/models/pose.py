@@ -100,7 +100,7 @@ class PosePredictor(nn.Module):
         TCO_input = TCO
         for n in range(n_iterations):
             TCO_input = TCO_input.detach()
-            logger.info(f"iteration {n}")
+            # logger.info(f"iteration {n}")
             logger.debug(f"tco input {TCO_input}")
             images_crop, K_crop, boxes_rend, boxes_crop = self.crop_inputs(images, K, TCO_input, labels)
             renders = self.renderer.render(obj_infos=[dict(name=l) for l in labels],
