@@ -110,15 +110,15 @@ class MultiviewPredictionRunner:
             logger.debug(f'Image has {n_gt_dets} gt detections. (not used)')
         
             if detections is not None:
+                print("detections", detections, "cameras", cameras)
                 keep_ids, batch_im_ids = [], []
                 for group_name, group in cameras.infos.groupby(['scene_id', 'view_id']):
                     if group_name in det_index.index:
                         other_group = det_index.loc[group_name]
                         keep_ids_ = other_group['det_id']
                         batch_im_id = np.unique(group['batch_im_id']).item()
-                        print("keep_ids_", keep_ids_)
-                        # len(keep_ids_)
-                        batch_im_ids.append(np.ones(keep_ids_) * batch_im_id)
+                        print("len(keep_ids_)", keep_ids_)
+                        batch_im_ids.append(np.ones(len(keep_ids_)) * batch_im_id)
                         keep_ids.append(keep_ids_)
                 if len(keep_ids) > 0:
                     keep_ids = np.concatenate(keep_ids)

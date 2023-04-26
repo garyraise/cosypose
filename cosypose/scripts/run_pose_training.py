@@ -178,11 +178,12 @@ def make_cfg(args):
         cfg.urdf_ds_name = bop_cfg['urdf_ds_name']
         cfg.object_ds_name = bop_cfg['obj_ds_name']
         cfg.input_resize = bop_cfg['input_resize']
-        cfg.test_ds_names = ["bracket_assembly"]
+        cfg.test_ds_names = []
+        # cfg.test_ds_names = ["bracket_assembly"]
         cfg.val_epoch_interval = 50
         cfg.n_test_frames = 100
         if 'coarse' in args.config:
-            cfg.TCO_input_generator = 'fixed'
+            cfg.TCO_input_generator = 'fixed+trans_noise'
         elif 'refiner' in args.config: # train_refiner: true
             cfg.TCO_input_generator = 'gt+noise'
 
