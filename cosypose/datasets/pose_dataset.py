@@ -106,7 +106,6 @@ class PoseDataset(torch.utils.data.Dataset):
                 objects_visible.append(obj)
         if len(objects_visible) == 0:
             raise NoObjectError
-        # assert len(objects_visible) > 0, idx
 
         rgb = torch.as_tensor(rgb).permute(2, 0, 1).to(torch.uint8)
         assert rgb.shape[0] == 3
@@ -132,10 +131,10 @@ class PoseDataset(torch.utils.data.Dataset):
         while not valid:
             if n_attempts > 10:
                 raise ValueError('Cannot find valid image in the dataset')
-            # try:
-            data = self.get_data(try_index)
-            valid = True
-            # except NoObjectError:
-            #     try_index = random.randint(0, len(self.scene_ds) - 1)
-            #     n_attempts += 1
+            try:
+                data = self.get_data(try_index)
+                valid = True
+            except NoObjectError:
+                try_index = random.randint(0, len(self.scene_ds) - 1)
+                n_attempts += 1
         return data

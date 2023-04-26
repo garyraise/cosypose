@@ -45,7 +45,6 @@ def h_pose(model, mesh_db, data, meters,
     # model.module.enable_debug()
     outputs = model(images=images, K=K, labels=labels,
                     TCO=TCO_init, n_iterations=n_iterations)
-    # raise ValueError
 
     losses_TCO_iter = []
     for n in range(n_iterations):

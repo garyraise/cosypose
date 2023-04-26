@@ -132,7 +132,7 @@ def make_scene_dataset(ds_name, n_frames=None):
         ds = BOPDataset(ds_dir, split='train_real')
     elif ds_name == 'bracket_assembly':
         ds_dir = BOP_DS_DIR / 'bracket_assembly'
-        ds = BOPDataset(ds_dir, split='train_pbr')
+        ds = BOPDataset(ds_dir, split='train_pbr', train_classes=['5'])
 
     # Synthetic datasets
     elif 'synthetic.' in ds_name:
@@ -181,8 +181,8 @@ def make_object_dataset(ds_name):
     elif ds_name == 'tudl':
         ds = BOPObjectDataset(BOP_DS_DIR / 'tudl/models')
     elif ds_name == 'bracket_assembly':
-        ds = BOPObjectDataset(BOP_DS_DIR / 'bracket_assembly/models', mesh_units='m')
-
+        ds = BOPObjectDataset(BOP_DS_DIR / 'bracket_assembly/models', mesh_units='m', ignore_symmetric=True, train_classes=['5'])
+        print("ds", ds)
     else:
         raise ValueError(ds_name)
     return ds

@@ -60,6 +60,7 @@ class BatchedMeshes(TensorCollection):
         super().__init__()
         self.infos = infos
         self.label_to_id = {label: n for n, label in enumerate(labels)}
+        print("label_to_id", self.label_to_id)
         self.labels = np.asarray(labels)
         self.register_tensor('points', points)
         self.register_tensor('symmetries', symmetries)

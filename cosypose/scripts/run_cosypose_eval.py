@@ -49,7 +49,6 @@ torch.backends.cudnn.benchmark = False
 
 @MEMORY.cache
 def load_flownet_results():
-    # TODO: args.run_id args.type
     results_path = LOCAL_DATA_DIR /'results' / 'bop---356706' / 'dataset=bracket_assembly'
     results = pkl.loads(results_path.read_bytes())
     infos, poses, bboxes = [], [], []
@@ -141,7 +140,7 @@ def load_posecnn_results():
     return data
 
 @MEMORY.cache
-def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None):
+def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None, train_classes=None):
     path_data_dir = LOCAL_DATA_DIR / 'bop_datasets' / 'bracket_assembly'
     path_scene_dir = os.path.join(path_data_dir, "train_pbr")
     scene_names = os.listdir(path_scene_dir)
@@ -157,8 +156,6 @@ def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None):
         with open(path_scene_gt_camera, "r") as f:
             json_gt_camera = json.load(f)
         img_names_rgb = os.listdir(os.path.join(path_scene_dir, scene_name, "rgb"))
-        # todo
-        # scene_camera = load_scene_camera(path_scene_gt_camera)
         from cosypose.lib3d import Transform
         for img_id, img_name in enumerate(img_names_rgb[:-1]):
             if not f"{img_id}" in json_data_gt_info:
@@ -167,8 +164,6 @@ def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None):
                 continue
             if not f"{img_id}" in json_gt_camera:
                 continue
-            # cam_R_w2c = scene_camera[img_id]["cam_R_w2c"]
-            # TODO
             cam_R_w2c = json_gt_camera[f"{img_id}"]["cam_R_w2c"]
             cam_t_w2c = json_gt_camera[f"{img_id}"]["cam_t_w2c"]
             row0 = [cam_R_w2c[0], cam_R_w2c[1], cam_R_w2c[2], cam_t_w2c[0]] 
@@ -176,20 +171,12 @@ def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None):
             row2 = [cam_R_w2c[6], cam_R_w2c[7], cam_R_w2c[8], cam_t_w2c[2]]           
             row3 = [0, 0, 0, 1]
             cam_rot_loc_mat = np.asarray([row0, row1, row2, row3])
-
-
-            if 'cam_R_w2c' in json_gt_camera[f"{img_id}"]:
-                RC0 = np.array(json_gt_camera[f"{img_id}"]['cam_R_w2c']).reshape(3, 3)
-                tC0 = np.array(json_gt_camera[f"{img_id}"]['cam_t_w2c'])# * 0.001
-                TC0 = Transform(RC0, tC0)
-                T0C = TC0.inverse()
-                T0C = T0C.toHomogeneousMatrix()
+            # TODO: ADD no_sym / single_cat option for inference
             for label_idx, label in enumerate(json_data_gt[f"{img_id}"]):
-                
-
                 obj_id = label["obj_id"] # int
-                list_bbox = json_data_gt_info[f"{img_id}"][label_idx]["bbox_visib"] # TODO: ?
-
+                if train_classes and str(obj_id) not in train_classes:
+                    continue
+                list_bbox = json_data_gt_info[f"{img_id}"][label_idx]["bbox_visib"]
                 xmin = list_bbox[0]
                 ymin = list_bbox[1]
                 xmax = list_bbox[0] +  list_bbox[2]
@@ -197,12 +184,7 @@ def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None):
                 list_bbox = [xmin, ymin, xmax, ymax]
                 list_rot  = json_data_gt[f"{img_id}"][label_idx]["cam_R_m2c"]
                 list_loc  = json_data_gt[f"{img_id}"][label_idx]["cam_t_m2c"]
-                # RCO = np.array(json_data_gt[f"{img_id}"][label_idx]['cam_R_m2c']).reshape(3, 3)
-                # tCO = np.array(json_data_gt[f"{img_id}"][label_idx]['cam_t_m2c']) #* 0.001
-                # TCO = Transform(RCO, tCO)
-                # T0O = T0C * TCO
-                # T0O = T0O.toHomogeneousMatrix()
-
+                
                 row0 = [list_rot[0], list_rot[1], list_rot[2], list_loc[0]] 
                 row1 = [list_rot[3], list_rot[4], list_rot[5], list_loc[1]]
                 row2 = [list_rot[6], list_rot[7], list_rot[8], list_loc[2]]
@@ -218,7 +200,6 @@ def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None):
                         score=1,
                         label=f"obj_{obj_id:06d}",
                     ))
-                # poses.append(T0O)
                 poses.append(rot_loc_mat)
                 bboxes.append(list_bbox)
     data = tc.PandasTensorCollection(
@@ -531,11 +512,10 @@ def main():
     if skip_predictions:
         pred_kwargs = {}
     elif 'bracket_assembly' in ds_name:
-        bracket_detections = load_custom_detection_from_gt().cpu()
+        bracket_detections = load_custom_detection_from_gt(train_classes=['5']).cpu()
         pred_kwargs = {
             'pix2pose_detections': dict(
                 detections=bracket_detections,
-                # use_detections_TCO=posecnn_detections,
                 **base_pred_kwargs
             )
         }
@@ -660,7 +640,7 @@ def main():
         save_dir.mkdir()
         results = format_results(all_predictions, eval_metrics, eval_dfs, print_metrics=True)
         (save_dir / 'full_summary.txt').write_text(results.get('summary_txt', ''))
-        print("results,all_predictions, all_predictions", results, all_predictions, eval_dfs)
+        # print("results,all_predictions, all_predictions", results, all_predictions, eval_dfs)
 
         full_summary = results['summary']
         summary_txt = 'Results:'

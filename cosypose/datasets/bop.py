@@ -57,9 +57,11 @@ def build_index(ds_dir, save_file, split, save_file_annotations):
 
 
 class BOPDataset:
-    def __init__(self, ds_dir, split='train', load_depth=False):
+    def __init__(self, ds_dir, split='train', load_depth=False, train_classes=None):
+        print("train_classes", train_classes)
         ds_dir = Path(ds_dir)
         self.ds_dir = ds_dir
+        self.train_classes = train_classes
         assert ds_dir.exists(), 'Dataset does not exists.'
 
         self.split = split
@@ -76,7 +78,10 @@ class BOPDataset:
         self.annotations = pickle.loads(save_file_annotations.read_bytes())
 
         models_infos = json.loads((ds_dir / 'models' / 'models_info.json').read_text())
-        self.all_labels = [f'obj_{int(obj_id):06d}' for obj_id in models_infos.keys()]
+        if train_classes is not None:
+            self.all_labels = [f'obj_{int(obj_id):06d}' for obj_id in models_infos.keys() if str(obj_id) in train_classes]
+        else:
+            self.all_labels = [f'obj_{int(obj_id):06d}' for obj_id in models_infos.keys()]
         self.load_depth = load_depth
 
     def __len__(self):
@@ -133,6 +138,8 @@ class BOPDataset:
                 T0O = T0C * TCO
                 T0O = T0O.toHomogeneousMatrix()
                 obj_id = annotation[n]['obj_id']
+                if self.train_classes and str(obj_id) not in self.train_classes:
+                    continue
                 name = f'obj_{int(obj_id):06d}'
                 bbox_visib = np.array(visib[n]['bbox_visib'])
                 x, y, w, h = bbox_visib

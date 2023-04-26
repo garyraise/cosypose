@@ -61,7 +61,7 @@ class PoseEvaluation:
     def evaluate(self, obj_predictions, device='cuda'):
         for meter in self.meters.values():
             meter.reset()
-        # TODO: 
+        # TODO: ADD PER CATEGORY INFERENCE
         # all_categories = []
         # obj_predictions_copy = obj_predictions.copy()
         # print(obj_data_gt.infos['frame_obj_id'], obj_data_gt.infos['label'])
