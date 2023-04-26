@@ -133,7 +133,9 @@ def make_scene_dataset(ds_name, n_frames=None):
     elif ds_name == 'bracket_assembly':
         ds_dir = BOP_DS_DIR / 'bracket_assembly'
         ds = BOPDataset(ds_dir, split='train_pbr', train_classes=['5'])
-
+    elif ds_name == 'bracket_assembly_04_22':
+        ds_dir = BOP_DS_DIR / 'bracket_assembly'
+        ds = BOPDataset(ds_dir, split='train_pbr', train_classes=['5'])
     # Synthetic datasets
     elif 'synthetic.' in ds_name:
         from .synthetic_dataset import SyntheticSceneDataset

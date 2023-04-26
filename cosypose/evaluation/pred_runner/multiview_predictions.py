@@ -117,6 +117,7 @@ class MultiviewPredictionRunner:
                         keep_ids_ = other_group['det_id']
                         batch_im_id = np.unique(group['batch_im_id']).item()
                         print("keep_ids_", keep_ids_)
+                        # len(keep_ids_)
                         batch_im_ids.append(np.ones(keep_ids_) * batch_im_id)
                         keep_ids.append(keep_ids_)
                 if len(keep_ids) > 0:
