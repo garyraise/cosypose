@@ -119,6 +119,7 @@ def loss_refiner_CO_disentangled_quaternions(TCO_possible_gt,
 
 
 def TCO_init_from_boxes(z_range, boxes, K):
+    # bracket_aseembly, better result
     # Used in the paper
     assert len(z_range) == 2
     assert boxes.shape[-1] == 4
@@ -136,6 +137,7 @@ def TCO_init_from_boxes(z_range, boxes, K):
 
 
 def TCO_init_from_boxes_zup_autodepth(boxes_2d, model_points_3d, K):
+    # For bop: z axis of object coordinate frame is parrell to the camera y axis
     # User in BOP20 challenge
     assert boxes_2d.shape[-1] == 4
     assert boxes_2d.dim() == 2
@@ -163,8 +165,6 @@ def TCO_init_from_boxes_zup_autodepth(boxes_2d, model_points_3d, K):
     z_from_dx = fxfy[:, 0] * deltax_3d / bb_deltax
     z_from_dy = fxfy[:, 1] * deltay_3d / bb_deltay
 
-    # z = z_from_dx.unsqueeze(1)
-    # z = z_from_dy.unsqueeze(1)
     z = (z_from_dy.unsqueeze(1) + z_from_dx.unsqueeze(1)) / 2
 
     xy_init = ((bb_xy_centers - cxcy) * z) / fxfy

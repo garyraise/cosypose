@@ -13,7 +13,6 @@ class BOPObjectDataset:
             # just load one model (nut: obj_id = obj_000005)
             # print("obj_id", train_classes, obj_id)
             if train_classes and str(obj_id) not in train_classes:
-                print("obj_id", obj_id)
                 continue
             obj_id = int(obj_id)
             obj_label = f'obj_{obj_id:06d}'
@@ -39,7 +38,6 @@ class BOPObjectDataset:
             objects.append(obj)
 
         self.objects = objects
-        print("self.objects", self.objects)
         self.ds_dir = ds_dir
 
     def __getitem__(self, idx):

@@ -447,10 +447,16 @@ def main():
         n_refiner_iterations = 2
     elif args.config == 'bracket_assembly':
         object_set = 'bracket_assembly'
-        # coarse_run_id = f'bracket_assembly_coarse--360104'
-        # refiner_run_id = 'bracket_assembly_refiner--558735'
+        # all cat_sym (baseline)
         coarse_run_id = f'bracket_assembly_coarse--626765'
         refiner_run_id = f'bracket_assembly_refiner--990144'
+        # single_cat_no_sym
+        coarse_run_id = 'bracket_assembly_coarse--12034'
+        refiner_run_id = 'bracket_assembly_refiner--8403'
+        # single_cat_sym
+        coarse_run_id = 'bracket_assembly_coarse--206480'
+        refiner_run_id = 'bracket_assembly_refiner--460482'
+        
         n_coarse_iterations = 1
         n_refiner_iterations = 2
     else:

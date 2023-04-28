@@ -171,7 +171,7 @@ def make_cfg(args):
         from cosypose.bop_config import BOP_CONFIG
         from cosypose.bop_config import PBR_COARSE, PBR_REFINER
         
-        cfg.train_ds_names = [("bracket_assembly", 1)]
+        cfg.train_ds_names = [("bracket_assembly_nut", 1), ("bracket_assembly_04_22_nut", 1)]
         bop_cfg = BOP_CONFIG["bracket_assembly"]
 
         cfg.val_ds_names = cfg.train_ds_names
@@ -183,10 +183,11 @@ def make_cfg(args):
         cfg.val_epoch_interval = 50
         cfg.n_test_frames = 100
         if 'coarse' in args.config:
+            cfg.init_method = 'from_boxes'
             cfg.TCO_input_generator = 'fixed+trans_noise'
-        elif 'refiner' in args.config: # train_refiner: true
+        elif 'refiner' in args.config:
             cfg.TCO_input_generator = 'gt+noise'
-
+        # TODO: cfg.TCO_input_generator
     elif args.resume:
         pass
 

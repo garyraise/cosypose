@@ -73,7 +73,7 @@ class CoarseRefinePosePredictor(torch.nn.Module):
             meshes = self.coarse_model.mesh_db.select(detections.infos['label'])
             points_3d = meshes.sample_points(2000, deterministic=True)
             TCO_init = TCO_init_from_boxes_zup_autodepth(boxes, points_3d, K)
-        else:
+        elif self.coarse_model.cfg.init_method == 'from_boxes':
             TCO_init = TCO_init_from_boxes(z_range=(0.3, 0.3), boxes=boxes, K=K)
         return tc.PandasTensorCollection(infos=detections.infos, poses=TCO_init)
 
