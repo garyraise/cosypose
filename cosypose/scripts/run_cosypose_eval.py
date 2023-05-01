@@ -191,9 +191,6 @@ def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None, trai
                 row3 = [0, 0, 0, 1]
                 rot_loc_mat = np.asarray([row0, row1, row2, row3])
                 rot_loc_mat = np.matmul(np.linalg.inv(cam_rot_loc_mat), rot_loc_mat)
-                if scene_id == 0 and img_id == 20:
-                    logger.info(f"label_idx {label_idx}")
-                    logger.info(f"rot_loc_mat {rot_loc_mat}")
                 infos.append(dict(
                         scene_id=scene_id,
                         view_id=img_id,
@@ -325,7 +322,6 @@ def get_pose_meters(scene_ds):
         exact_meshes=False,
         sample_n_points=100,
         errors_bsz=1,
-
         # BOP-Like parameters
         n_top=n_top,
         visib_gt_min=visib_gt_min,
@@ -362,8 +358,8 @@ def get_pose_meters(scene_ds):
 def load_models(coarse_run_id, refiner_run_id=None, n_workers=8, object_set='tless'):
     if object_set == 'tless':
         object_ds_name, urdf_ds_name = 'tless.bop', 'tless.cad'
-    elif object_set == 'bracket_assembly':
-        object_ds_name, urdf_ds_name = 'bracket_assembly', 'bracket_assembly'
+    elif 'bracket_assembly' in object_set:
+        object_ds_name, urdf_ds_name = object_set, 'bracket_assembly'
     else:
         object_ds_name, urdf_ds_name = 'ycbv.bop-compat.eval', 'ycbv'
 
@@ -445,18 +441,27 @@ def main():
         refiner_run_id = 'ycbv-refiner-finetune--251020'
         n_coarse_iterations = 0
         n_refiner_iterations = 2
-    elif args.config == 'bracket_assembly':
+    elif 'bracket_assembly' in args.config:
+        # make nut-only object dataset or all categories
         object_set = 'bracket_assembly'
-        # all cat_sym (baseline)
-        coarse_run_id = f'bracket_assembly_coarse--626765'
-        refiner_run_id = f'bracket_assembly_refiner--990144'
-        # single_cat_no_sym
-        coarse_run_id = 'bracket_assembly_coarse--12034'
-        refiner_run_id = 'bracket_assembly_refiner--8403'
+        if 'nut' in args.config:
+            object_set = object_set + '_nut'
+        if 'nosym' in args.config:
+            object_set = object_set + '_nosym'
+        
+        # # all cat_sym (baseline)
+        # coarse_run_id = f'bracket_assembly_coarse--626765'
+        # refiner_run_id = f'bracket_assembly_refiner--990144'
+        # # single_cat_no_sym
+        # coarse_run_id = 'bracket_assembly_coarse--12034'
+        # refiner_run_id = 'bracket_assembly_refiner--8403'
         # single_cat_sym
         coarse_run_id = 'bracket_assembly_coarse--206480'
-        refiner_run_id = 'bracket_assembly_refiner--460482'
-        
+        refiner_run_id = 'bracket_assembly_coarse--206480'
+        # 04_22_nut_sym
+        coarse_run_id = 'bracket_assembly_coarse--497150'
+        refiner_run_id = 'bracket_assembly_refiner--94975'
+
         n_coarse_iterations = 1
         n_refiner_iterations = 2
     else:
@@ -469,14 +474,18 @@ def main():
         ds_name = 'tless.primesense.test.bop19'
     elif args.config == 'ycbv':
         ds_name = 'ycbv.test.keyframes'
-    elif args.config == 'bracket_assembly':
+    elif 'bracket_assembly' in args.config:
         ds_name = 'bracket_assembly' 
+        if '04_22' in args.config:
+            pass # TODO: add concatDataset
+        if 'nut' in args.config:
+            ds_name = ds_name + '_nut'
     else:
         raise ValueError(args.config)
 
     global DEBUG
     DEBUG = False
-    if args.debug:       
+    if args.debug:
         DEBUG = args.debug
         if 'tless' in args.config:
             scene_id = None
@@ -504,6 +513,7 @@ def main():
     if frame_ids is not None:
         scene_ds.frame_index = scene_ds.frame_index.iloc[frame_ids,:]
     # Predictions
+    print("object_set", object_set)
     predictor, mesh_db = load_models(coarse_run_id, refiner_run_id, n_workers=n_plotters, object_set=object_set)
 
     mv_predictor = MultiviewScenePredictor(mesh_db)
@@ -518,7 +528,10 @@ def main():
     if skip_predictions:
         pred_kwargs = {}
     elif 'bracket_assembly' in ds_name:
-        bracket_detections = load_custom_detection_from_gt(train_classes=['5']).cpu()
+        if 'nut' in ds_name:
+            bracket_detections = load_custom_detection_from_gt(train_classes=['5']).cpu()
+        else:
+            bracket_detections = load_custom_detection_from_gt().cpu()
         pred_kwargs = {
             'pix2pose_detections': dict(
                 detections=bracket_detections,

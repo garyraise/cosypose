@@ -122,7 +122,10 @@ class VisualizeSingleView():
 
 
 if __name__ == '__main__':
-    viz = VisualizeSingleView('bracket_assembly', 'bracket_assembly-n_views=1--3211443897')
+    #baseline
+    # viz = VisualizeSingleView('bracket_assembly', 'bracket_assembly-n_views=1--3211443897')
+    #
+    viz = VisualizeSingleView('bracket_assembly_nut', 'bracket_assembly_nut-n_views=1--684291998')
     import random
     #Generate 5 random numbers between 10 and 30
     random.seed(0)

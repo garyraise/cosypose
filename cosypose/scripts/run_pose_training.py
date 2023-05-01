@@ -53,14 +53,14 @@ def make_cfg(args):
     # Optimizer
     cfg.lr = 3e-4
     cfg.weight_decay = 0.
-    cfg.n_epochs_warmup = 50
+    cfg.n_epochs_warmup = 10 # 50
     cfg.lr_epoch_decay = 500
     cfg.clip_grad_norm = 0.5
 
     # Training
     cfg.batch_size = 8
     cfg.epoch_size = 115200
-    cfg.n_epochs = 700
+    cfg.n_epochs = 20 # 700
     cfg.n_dataloader_workers = N_WORKERS
 
     # Method
@@ -170,10 +170,15 @@ def make_cfg(args):
     elif 'bracket_assembly' in args.config:
         from cosypose.bop_config import BOP_CONFIG
         from cosypose.bop_config import PBR_COARSE, PBR_REFINER
-        
-        cfg.train_ds_names = [("bracket_assembly_nut", 1), ("bracket_assembly_04_22_nut", 1)]
+        # if args.config == 'bracket_assembly':
+        #     cfg.train_ds_names = [("bracket_assembly_nut", 1)]
+        # elif args.config == 'bracket_assembly_04_22':
+        #     cfg.train_ds_names = [("bracket_assembly_nut", 1), ("bracket_assembly_04_22_nut", 1)]
+        if args.config == 'bracket_assembly_debug_nut_coarse' or args.config == 'bracket_assembly_debug_nut_refiner':
+            cfg.train_ds_names = [("bracket_assembly_debug_nut", 1)]
         bop_cfg = BOP_CONFIG["bracket_assembly"]
-
+        print("cfg.n_pose_dims", cfg.n_pose_dims)
+        print("cfg.train_ds_names", cfg.train_ds_names)
         cfg.val_ds_names = cfg.train_ds_names
         cfg.urdf_ds_name = bop_cfg['urdf_ds_name']
         cfg.object_ds_name = bop_cfg['obj_ds_name']

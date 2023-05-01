@@ -130,6 +130,12 @@ def make_scene_dataset(ds_name, n_frames=None):
     elif ds_name == 'tudl.train.real':
         ds_dir = BOP_DS_DIR / 'tudl'
         ds = BOPDataset(ds_dir, split='train_real')
+    elif ds_name == 'bracket_assembly_debug':
+        ds_dir = BOP_DS_DIR / 'bracket_assembly_debug'
+        ds = BOPDataset(ds_dir, split='train_pbr')
+    elif ds_name == 'bracket_assembly_debug_nut' or ds_name == 'bracket_assembly_debug_nut_nosym':
+        ds_dir = BOP_DS_DIR / 'bracket_assembly_debug'
+        ds = BOPDataset(ds_dir, split='train_pbr', train_classes=['5'])
     elif ds_name == 'bracket_assembly' or ds_name == 'bracket_assembly_nosym':
         ds_dir = BOP_DS_DIR / 'bracket_assembly'
         ds = BOPDataset(ds_dir, split='train_pbr')
@@ -187,6 +193,12 @@ def make_object_dataset(ds_name):
         ds = BOPObjectDataset(BOP_DS_DIR / 'lm/models')
     elif ds_name == 'tudl':
         ds = BOPObjectDataset(BOP_DS_DIR / 'tudl/models')
+    elif ds_name == 'bracket_assembly_debug':
+        ds = BOPObjectDataset(BOP_DS_DIR / 'bracket_assembly_debug/models', mesh_units='m', ignore_symmetric=False)
+    elif ds_name == 'bracket_assembly_debug_nut':
+        ds = BOPObjectDataset(BOP_DS_DIR / 'bracket_assembly_debug/models', mesh_units='m', ignore_symmetric=False, train_classes=['5'])
+    elif ds_name == 'bracket_assembly_debug_nut_nosym':
+        ds = BOPObjectDataset(BOP_DS_DIR / 'bracket_assembly_debug/models', mesh_units='m', ignore_symmetric=True, train_classes=['5'])
     elif ds_name == 'bracket_assembly':
         ds = BOPObjectDataset(BOP_DS_DIR / 'bracket_assembly/models', mesh_units='m', ignore_symmetric=False)
     elif ds_name == 'bracket_assembly_04_22':

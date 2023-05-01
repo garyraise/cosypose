@@ -58,7 +58,6 @@ def build_index(ds_dir, save_file, split, save_file_annotations):
 
 class BOPDataset:
     def __init__(self, ds_dir, split='train', load_depth=False, train_classes=None):
-        print("train_classes", train_classes)
         ds_dir = Path(ds_dir)
         self.ds_dir = ds_dir
         self.train_classes = train_classes
@@ -76,8 +75,9 @@ class BOPDataset:
             split=split)
         self.frame_index = pd.read_feather(save_file_index).reset_index(drop=True)
         self.annotations = pickle.loads(save_file_annotations.read_bytes())
-
+        # TODO
         models_infos = json.loads((ds_dir / 'models' / 'models_info.json').read_text())
+        # models_infos = json.load
         if train_classes is not None:
             self.all_labels = [f'obj_{int(obj_id):06d}' for obj_id in models_infos.keys() if str(obj_id) in train_classes]
         else:
