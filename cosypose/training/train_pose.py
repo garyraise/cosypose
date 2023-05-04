@@ -137,6 +137,7 @@ def make_eval_bundle(args, model_training):
 
         elif 'bracket_assembly' in ds_name:
             detections = load_custom_detection_from_gt(train_classes=['5']).cpu()
+            # TODO: add handler for multiple detections
             coarse_detections = detections
             det_k = 'pix2pose_detections'
             coarse_k = 'pix2pose_coarse'
@@ -193,7 +194,6 @@ def run_eval(eval_bundle, epoch):
 
 def train_pose(args):
     torch.set_num_threads(1)
-
     if args.resume_run_id:
         resume_dir = EXP_DIR / args.resume_run_id
         resume_args = yaml.load((resume_dir / 'config.yaml').read_text())
@@ -204,7 +204,6 @@ def train_pose(args):
     args.train_coarse = not args.train_refiner
     args.save_dir = EXP_DIR / args.run_id
     args = check_update_config(args)
-
     logger.info(f"{'-'*80}")
     for k, v in args.__dict__.items():
         logger.info(f"{k}: {v}")

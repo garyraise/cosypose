@@ -45,7 +45,17 @@ BOP_CONFIG['bracket_assembly'] = dict(
     train_pbr_ds_name=['bracket_assembly'],
     train_pbr_real_ds_names=[('bracket_assembly', 1), ()],
     inference_ds_name=['bracket_assembly'],
-    test_ds_name=['bracket_assembly'],
+    test_ds_name=[],
+)
+
+BOP_CONFIG['bracket_assembly_debug'] = dict(
+    input_resize=(640, 480),
+    urdf_ds_name='bracket_assembly_debug',
+    obj_ds_name='bracket_assembly_debug',
+    train_pbr_ds_name=['bracket_assembly_debug'],
+    train_pbr_real_ds_names=[('bracket_assembly_debug', 1), ()],
+    inference_ds_name=['bracket_assembly_debug'],
+    test_ds_name=[],
 )
 
 

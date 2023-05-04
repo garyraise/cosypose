@@ -139,6 +139,9 @@ def make_scene_dataset(ds_name, n_frames=None):
     elif ds_name == 'bracket_assembly' or ds_name == 'bracket_assembly_nosym':
         ds_dir = BOP_DS_DIR / 'bracket_assembly'
         ds = BOPDataset(ds_dir, split='train_pbr')
+    elif ds_name == 'bracket_assembly_debug_nut' or ds_name == 'bracket_assembly_debug_nut_nosym':
+        ds_dir = BOP_DS_DIR / 'bracket_assembly_debug_nut'
+        ds = BOPDataset(ds_dir, split='train_pbr')
     elif ds_name == 'bracket_assembly_04_22' or ds_name == 'bracket_assembly_04_22_nosym':
         ds_dir = BOP_DS_DIR / 'bracket_assembly'
         ds = BOPDataset(ds_dir, split='train_pbr')

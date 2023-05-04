@@ -8,6 +8,8 @@ from cosypose.lib3d.cosypose_ops import (
     loss_refiner_CO_disentangled_quaternions,
 )
 from cosypose.lib3d.mesh_losses import compute_ADD_L1_loss
+from cosypose.utils.logging import get_logger
+logger = get_logger(__name__)
 
 
 def cast(obj):
@@ -43,6 +45,7 @@ def h_pose(model, mesh_db, data, meters,
                              trans_std=[0.01, 0.01, 0.05])
     else:
         raise ValueError('Unknown input generator', input_generator)
+    logger.info(f"TCO_init {TCO_init}")
 
     # model.module.enable_debug()
     outputs = model(images=images, K=K, labels=labels,
@@ -69,6 +72,7 @@ def h_pose(model, mesh_db, data, meters,
                 TCO_input=TCO_input,
                 refiner_outputs=pose_outputs,
                 K_crop=K_crop, points=points,
+                n_iterations=n # TODO # n_iterations=1
             )
         else:
             loss_TCO_iter = compute_ADD_L1_loss(

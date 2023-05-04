@@ -140,8 +140,11 @@ def load_posecnn_results():
     return data
 
 @MEMORY.cache
-def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None, train_classes=None):
-    path_data_dir = LOCAL_DATA_DIR / 'bop_datasets' / 'bracket_assembly'
+def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None, train_classes=None, debug=False):
+    if debug:
+        path_data_dir = LOCAL_DATA_DIR / 'bop_datasets' / 'bracket_assembly_debug'
+    else:
+        path_data_dir = LOCAL_DATA_DIR / 'bop_datasets' / 'bracket_assembly'
     path_scene_dir = os.path.join(path_data_dir, "train_pbr")
     scene_names = os.listdir(path_scene_dir)
     infos, poses, bboxes = [], [], []
@@ -444,6 +447,8 @@ def main():
     elif 'bracket_assembly' in args.config:
         # make nut-only object dataset or all categories
         object_set = 'bracket_assembly'
+        if 'debug' in args.config:
+            object_set = object_set + '_debug'
         if 'nut' in args.config:
             object_set = object_set + '_nut'
         if 'nosym' in args.config:
@@ -456,12 +461,13 @@ def main():
         # coarse_run_id = 'bracket_assembly_coarse--12034'
         # refiner_run_id = 'bracket_assembly_refiner--8403'
         # single_cat_sym
-        coarse_run_id = 'bracket_assembly_coarse--206480'
-        refiner_run_id = 'bracket_assembly_coarse--206480'
+        # coarse_run_id = 'bracket_assembly_coarse--206480'
+        # refiner_run_id = 'bracket_assembly_coarse--206480'
         # 04_22_nut_sym
         coarse_run_id = 'bracket_assembly_coarse--497150'
         refiner_run_id = 'bracket_assembly_refiner--94975'
-
+        # single frame sym nut
+        
         n_coarse_iterations = 1
         n_refiner_iterations = 2
     else:
@@ -478,6 +484,8 @@ def main():
         ds_name = 'bracket_assembly' 
         if '04_22' in args.config:
             pass # TODO: add concatDataset
+        if 'debug' in args.config:
+            ds_name = ds_name + '_debug'
         if 'nut' in args.config:
             ds_name = ds_name + '_nut'
     else:
@@ -529,7 +537,7 @@ def main():
         pred_kwargs = {}
     elif 'bracket_assembly' in ds_name:
         if 'nut' in ds_name:
-            bracket_detections = load_custom_detection_from_gt(train_classes=['5']).cpu()
+            bracket_detections = load_custom_detection_from_gt(train_classes=['5'], debug='debug' in ds_name).cpu()
         else:
             bracket_detections = load_custom_detection_from_gt().cpu()
         pred_kwargs = {
