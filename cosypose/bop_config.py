@@ -47,18 +47,6 @@ BOP_CONFIG['bracket_assembly'] = dict(
     inference_ds_name=['bracket_assembly'],
     test_ds_name=[],
 )
-BOP_CONFIG['bracket_assembly_noaug'] = dict(
-    input_resize=(640, 480),
-    urdf_ds_name='bracket_assembly',
-    obj_ds_name='bracket_assembly',
-    train_pbr_ds_name=['bracket_assembly'],
-    train_pbr_real_ds_names=[('bracket_assembly', 1), ()],
-    inference_ds_name=['bracket_assembly'],
-    test_ds_name=[],
-    rgb_augmentation=False,
-    background_augmentation=False,
-    gray_augmentation=False
-)
 
 BOP_CONFIG['bracket_assembly_debug'] = dict(
     input_resize=(640, 480),

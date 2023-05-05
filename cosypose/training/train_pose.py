@@ -9,9 +9,9 @@ from pathlib import Path
 from torchnet.meter import AverageValueMeter
 from collections import defaultdict
 import torch.distributed as dist
-import wandb
 
 from cosypose.config import EXP_DIR
+
 from torch.utils.data import DataLoader, ConcatDataset
 from cosypose.utils.multiepoch_dataloader import MultiEpochDataLoader
 
@@ -302,12 +302,7 @@ def train_pose(args):
     )
     lr_scheduler.last_epoch = start_epoch - 1
     lr_scheduler.step()
-    config_dict = args
-    print("config_dict",type(args))
-    wandb.init(
-            project=args.config,
-            config=config_dict
-    )
+
     for epoch in range(start_epoch, end_epoch):
         meters_train = defaultdict(lambda: AverageValueMeter())
         meters_val = defaultdict(lambda: AverageValueMeter())
@@ -390,5 +385,4 @@ def train_pose(args):
         if get_rank() == 0:
             log(config=args, model=model, epoch=epoch,
                 log_dict=log_dict, test_dict=test_dict)
-        
         dist.barrier()
