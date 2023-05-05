@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-
+import wandb
 from cosypose.lib3d.cosypose_ops import TCO_init_from_boxes, TCO_init_from_boxes_zup_autodepth
 from cosypose.lib3d.transform_ops import add_noise
 from cosypose.lib3d.cosypose_ops import (
@@ -18,7 +18,6 @@ def cast(obj):
 
 def h_pose(model, mesh_db, data, meters,
            cfg, n_iterations=1, input_generator='fixed'):
-
     batch_size, _, h, w = data.images.shape
 
     images = cast(data.images).float() / 255.
@@ -72,8 +71,10 @@ def h_pose(model, mesh_db, data, meters,
                 TCO_input=TCO_input,
                 refiner_outputs=pose_outputs,
                 K_crop=K_crop, points=points,
-                n_iterations=n # TODO # n_iterations=1
+                _iteration=n # TODO # n_iterations=1
             )
+            wandb.log({"loss_TCO_iter": loss_TCO_iter,
+            })
         else:
             loss_TCO_iter = compute_ADD_L1_loss(
                 TCO_possible_gt[:, 0], TCO_pred, points
@@ -85,5 +86,8 @@ def h_pose(model, mesh_db, data, meters,
     loss_TCO = torch.cat(losses_TCO_iter).mean()
     loss = loss_TCO
     meters['loss_TCO'].add(loss_TCO.item())
-    meters['loss_total'].add(loss.item())
+    meters['[loss_total'].add(loss.item())
+    wandb.log({
+        "loss_total": loss
+            })
     return loss
