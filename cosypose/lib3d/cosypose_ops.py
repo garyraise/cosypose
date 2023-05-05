@@ -60,6 +60,7 @@ def loss_refiner_CO_disentangled(TCO_possible_gt,
     assert TCO_possible_gt.dim() == 4 and TCO_possible_gt.shape[-2:] == (4, 4)
 
     dR = compute_rotation_matrix_from_ortho6d(refiner_outputs[:, 0:6])
+    logger.info(f'refiner output {refiner_outputs}')
     vxvyvz = refiner_outputs[:, 6:9]
     logger.info(f"vxvyvz {vxvyvz}")    
     TCO_gt = TCO_possible_gt[:, 0]
@@ -84,7 +85,7 @@ def loss_refiner_CO_disentangled(TCO_possible_gt,
     loss_orn, _, TCO_points_possible_gt_orn, TCO_pred_points_orn = loss_CO_symmetric(TCO_possible_gt, TCO_pred_orn, points, l1_or_l2=l1)
     loss_xy, _, TCO_points_possible_gt_xy, TCO_pred_points_xy = loss_CO_symmetric(TCO_possible_gt, TCO_pred_xy, points, l1_or_l2=l1)
     loss_z, _ , TCO_points_possible_gt_z, TCO_pred_points_z = loss_CO_symmetric(TCO_possible_gt, TCO_pred_z, points, l1_or_l2=l1)
-    # logger.info(f"TCO_possible_gt {TCO_possible_gt}")
+    logger.info(f"TCO_possible_gt {TCO_possible_gt}")
     np.savez(f'debug_points_{n_iterations}.npz', points=points.detach().cpu(), 
              TCO_points_possible_gt_orn=TCO_points_possible_gt_orn.detach().cpu(),
              TCO_pred_points_orn=TCO_pred_points_orn.detach().cpu(),
@@ -100,6 +101,7 @@ def loss_refiner_CO_disentangled(TCO_possible_gt,
     logger.info(f"loss_xy: {loss_xy}")
     logger.info(f"loss_z: {loss_z}")
     return loss_orn + loss_xy + loss_z
+    # return loss_orn
 
 
 def loss_refiner_CO_disentangled_quaternions(TCO_possible_gt,

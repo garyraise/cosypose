@@ -33,7 +33,7 @@ class PosePredictor(nn.Module):
         self.pose_fc = nn.Linear(n_features, pose_dim, bias=True)
         self.heads['pose'] = self.pose_fc
 
-        self.debug = False
+        self.debug = True
         self.tmp_debug = dict()
 
     def enable_debug(self):
@@ -107,6 +107,7 @@ class PosePredictor(nn.Module):
                                            TCO=TCO_input,
                                            K=K_crop, resolution=self.render_size)
 
+            print(f'images_crop, renders {images_crop} {renders}')
             x = torch.cat((images_crop, renders), dim=1)
 
             model_outputs = self.net_forward(x)

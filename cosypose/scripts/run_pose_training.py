@@ -51,9 +51,9 @@ def make_cfg(args):
     cfg.coarse_run_id_for_test = None
 
     # Optimizer
-    cfg.lr = 3e-5 # 3e-4
+    cfg.lr = 1e-4 # 3e-4
     cfg.weight_decay = 0.
-    cfg.n_epochs_warmup = 100 # 300, 50
+    cfg.n_epochs_warmup = 10 # 300, 50
     cfg.lr_epoch_decay = 500
     cfg.clip_grad_norm = 0.5
 
@@ -174,6 +174,9 @@ def make_cfg(args):
         bop_cfg = BOP_CONFIG["bracket_assembly"]
         train_ds_names = bop_cfg['train_pbr_ds_name'][0]
         object_ds_name = bop_cfg['obj_ds_name']
+        cfg.rgb_augmentation = False
+        cfg.background_augmentation = False
+        cfg.gray_augmentation = False
         
         if 'debug' in args.config:
             object_ds_name = object_ds_name + '_debug'
