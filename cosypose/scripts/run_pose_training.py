@@ -51,7 +51,7 @@ def make_cfg(args):
     cfg.coarse_run_id_for_test = None
 
     # Optimizer
-    cfg.lr = 3e-5 # 3e-4
+    cfg.lr = 1e-5 # 3e-4
     cfg.weight_decay = 0.
     cfg.n_epochs_warmup = 100 # 300, 50
     cfg.lr_epoch_decay = 500
@@ -59,8 +59,8 @@ def make_cfg(args):
 
     # Training
     cfg.batch_size = 8
-    cfg.epoch_size = 115200
-    cfg.n_epochs = 100 # 700
+    cfg.epoch_size = 4 * cfg.batch_size # 115200
+    cfg.n_epochs = 400 # 700
     cfg.n_dataloader_workers = N_WORKERS
 
     # Method
@@ -69,6 +69,7 @@ def make_cfg(args):
     cfg.TCO_input_generator = 'fixed'
     cfg.n_iterations = 1
     cfg.min_area = None
+    cfg.config = args.config
 
     if 'bop-' in args.config:
         from cosypose.bop_config import BOP_CONFIG
@@ -171,6 +172,7 @@ def make_cfg(args):
     elif 'bracket_assembly' in args.config:
         from cosypose.bop_config import BOP_CONFIG
         from cosypose.bop_config import PBR_COARSE, PBR_REFINER
+
         bop_cfg = BOP_CONFIG["bracket_assembly"]
         train_ds_names = bop_cfg['train_pbr_ds_name'][0]
         object_ds_name = bop_cfg['obj_ds_name']
@@ -184,6 +186,10 @@ def make_cfg(args):
         if 'nosym' in args.config:
             object_ds_name = object_ds_name + '_nosym'
             train_ds_names = train_ds_names + '_nosym'
+        if 'noaug' in args.config:
+            cfg.rgb_augmentation=False
+            cfg.background_augmentation=False
+            cfg.gray_augmentation=False
         cfg.train_ds_names = [(train_ds_names, 1)]
         cfg.object_ds_name = object_ds_name
         if '04_22' in args.config:
@@ -222,11 +228,10 @@ def make_cfg(args):
         # maybe refactor, disentangle epoches and datasets
         cfg.test_ds_names = []
         cfg.n_epochs = 400
-        cfg.val_epoch_interval = 1
+        cfg.val_epoch_interval = 10
         cfg.batch_size = 4
         cfg.epoch_size = 4 * cfg.batch_size
         cfg.run_id = 'debug-' + cfg.run_id
-        cfg.background_augmentation = True
         cfg.n_dataloader_workers = 8
         cfg.n_rendering_workers = 0
         cfg.n_test_frames = 10

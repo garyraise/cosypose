@@ -1,8 +1,11 @@
 import torch
 import numpy as np
+import wandb
 from .rotations import compute_rotation_matrix_from_ortho6d, compute_rotation_matrix_from_quaternions
 from .transform_ops import transform_pts
 from cosypose.utils.logging import get_logger
+from cosypose.config import DEBUG_DATA_DIR
+
 logger = get_logger(__name__)
 
 l1 = lambda diff: diff.abs()
@@ -50,7 +53,7 @@ def loss_CO_symmetric(TCO_possible_gt, TCO_pred, points, l1_or_l2=l1):
 
 def loss_refiner_CO_disentangled(TCO_possible_gt,
                                  TCO_input, refiner_outputs,
-                                 K_crop, points, n_iterations=None):
+                                 K_crop, points, _iteration=None):
     bsz = TCO_possible_gt.shape[0]
     assert TCO_possible_gt.shape[0] == bsz
     assert TCO_input.shape[0] == bsz
@@ -74,7 +77,7 @@ def loss_refiner_CO_disentangled(TCO_possible_gt,
     z_input = TCO_input[:, 2, [3]]
     vxvy = vxvyvz[:, :2]
     fxfy = K_crop[:, [0, 1], [0, 1]]
-    logger.info(f"fxfy {fxfy}")    
+    logger.info(f"fxfy {fxfy}")
     xsrcysrc = TCO_input[:, :2, 3]
     TCO_pred_xy[:, :2, 3] = ((vxvy / fxfy) + (xsrcysrc / z_input.repeat(1, 2))) * z_gt.repeat(1, 2)
 
@@ -84,27 +87,40 @@ def loss_refiner_CO_disentangled(TCO_possible_gt,
     loss_orn, _, TCO_points_possible_gt_orn, TCO_pred_points_orn = loss_CO_symmetric(TCO_possible_gt, TCO_pred_orn, points, l1_or_l2=l1)
     loss_xy, _, TCO_points_possible_gt_xy, TCO_pred_points_xy = loss_CO_symmetric(TCO_possible_gt, TCO_pred_xy, points, l1_or_l2=l1)
     loss_z, _ , TCO_points_possible_gt_z, TCO_pred_points_z = loss_CO_symmetric(TCO_possible_gt, TCO_pred_z, points, l1_or_l2=l1)
-    # logger.info(f"TCO_possible_gt {TCO_possible_gt}")
-    np.savez(f'debug_points_{n_iterations}.npz', points=points.detach().cpu(), 
-             TCO_points_possible_gt_orn=TCO_points_possible_gt_orn.detach().cpu(),
-             TCO_pred_points_orn=TCO_pred_points_orn.detach().cpu(),
-             TCO_points_possible_gt_xy=TCO_points_possible_gt_xy.detach().cpu(),
-             TCO_pred_points_xy=TCO_pred_points_xy.detach().cpu(),
-             TCO_points_possible_gt_z=TCO_points_possible_gt_z.detach().cpu(),
-             TCO_pred_points_z=TCO_pred_points_z.detach().cpu())
-    print(f"saved debug_points_{n_iterations}.npz")
-    logger.info(f"TCO_pred_orn {TCO_pred_orn}")    
-    logger.info(f"TCO_pred_xy {TCO_pred_xy}")
-    logger.info(f"TCO_pred_z {TCO_pred_z}")   
-    logger.info(f"loss_orn: {loss_orn}")
-    logger.info(f"loss_xy: {loss_xy}")
-    logger.info(f"loss_z: {loss_z}")
-    return loss_orn + loss_xy + loss_z
+    # images = wandb.Image(
+    # image_array, 
+    # caption="Top: Output, Bottom: Input"
+    # )       
+    # wandb.log({"examples": images})
+          
+    # points_debug_file_path = DEBUG_DATA_DIR / f'debug_points_{EPOCH}_{iter}.npz'
+    # np.savez(points_debug_file_path, points=points.detach().cpu(), 
+    #          TCO_points_possible_gt_orn=TCO_points_possible_gt_orn.detach().cpu(),
+    #          TCO_pred_points_orn=TCO_pred_points_orn.detach().cpu(),
+    #          TCO_points_possible_gt_xy=TCO_points_possible_gt_xy.detach().cpu(),
+    #          TCO_pred_points_xy=TCO_pred_points_xy.detach().cpu(),
+    #          TCO_points_possible_gt_z=TCO_points_possible_gt_z.detach().cpu(),
+    #          TCO_pred_points_z=TCO_pred_points_z.detach().cpu())
+    # print(f'debug_points_{EPOCH}_{_iteration}.npz at {points_debug_file_path}')
+    log_dict = {"TCO_pred_orn": TCO_pred_orn,
+                "TCO_pred_xy": TCO_pred_xy,
+                "TCO_pred_z": TCO_pred_z,
+                "loss_orn": loss_orn,
+                "loss_xy": loss_xy,
+                "loss_z": loss_z
+    }
+    wandb.log({"loss_orn": loss_orn,
+                "loss_xy": loss_xy,
+                "loss_z": loss_z
+    })
+    for k, v in log_dict.items():
+        logger.info(f"k: {v}")
+    return loss_orn + loss_xy + loss_z * 10
 
 
 def loss_refiner_CO_disentangled_quaternions(TCO_possible_gt,
                                              TCO_input, refiner_outputs,
-                                             K_crop, points):
+                                             K_crop, points, _iteration=None):
     bsz = TCO_possible_gt.shape[0]
     assert TCO_possible_gt.shape[0] == bsz
     assert TCO_input.shape[0] == bsz
