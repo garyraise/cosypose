@@ -51,7 +51,7 @@ def make_cfg(args):
     cfg.coarse_run_id_for_test = None
 
     # Optimizer
-    cfg.lr = 1e-5 # 3e-4
+    cfg.lr = 1e-4
     cfg.weight_decay = 0.
     cfg.n_epochs_warmup = 100 # 300, 50
     cfg.lr_epoch_decay = 500
@@ -59,7 +59,7 @@ def make_cfg(args):
 
     # Training
     cfg.batch_size = 8
-    cfg.epoch_size = 4 * cfg.batch_size # 115200
+    cfg.epoch_size = 115200 # 4 * cfg.batch_size
     cfg.n_epochs = 400 # 700
     cfg.n_dataloader_workers = N_WORKERS
 
@@ -209,7 +209,7 @@ def make_cfg(args):
         if 'coarse' in args.config:
             cfg.init_method = 'from_boxes'
             # cfg.TCO_input_generator = 'fixed+trans_noise'
-            cfg.TCO_input_generator = 'fixed'#+trans_noise'
+            cfg.TCO_input_generator = 'fixed+trans_noise'
         elif 'refiner' in args.config:
             cfg.TCO_input_generator = 'gt+noise'
         # TODO: cfg.TCO_input_generator

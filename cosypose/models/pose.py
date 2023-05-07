@@ -1,5 +1,7 @@
 import torch
 from torch import nn
+import numpy as np
+import wandb
 
 from cosypose.config import DEBUG_DATA_DIR
 from cosypose.lib3d.camera_geometry import get_K_crop_resize, boxes_from_uv
@@ -58,6 +60,7 @@ class PosePredictor(nn.Module):
         )
         K_crop = get_K_crop_resize(K=K.clone(), boxes=boxes_crop,
                                    orig_size=images.shape[-2:], crop_resize=self.render_size)
+        
         if self.debug:
             # self.tmp_debug.update(points=points)
             self.tmp_debug.update(
@@ -103,6 +106,7 @@ class PosePredictor(nn.Module):
             logger.info(f"iteration {n}")
             logger.debug(f"tco input {TCO_input}")
             images_crop, K_crop, boxes_rend, boxes_crop = self.crop_inputs(images, K, TCO_input, labels)
+            
             renders = self.renderer.render(obj_infos=[dict(name=l) for l in labels],
                                            TCO=TCO_input,
                                            K=K_crop, resolution=self.render_size)
@@ -125,7 +129,15 @@ class PosePredictor(nn.Module):
             }
 
             TCO_input = TCO_output
-
+            for batch_id in range(images_crop.shape[0]):
+                image_viz = images_crop[batch_id,...].permute((1, 2, 0))[..., :4] * 255
+                image_viz = image_viz.to(torch.int64)
+                image_crop = wandb.Image(
+                    np.asarray(image_viz.cpu()), 
+                    caption=f"images_crop_{batch_id}"
+                    )
+                wandb.log({"image_crop": image_crop})
+                    
             if self.debug:
                 self.tmp_debug.update(output=outputs)
                 self.tmp_debug.update(

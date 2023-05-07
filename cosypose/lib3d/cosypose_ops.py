@@ -109,13 +109,12 @@ def loss_refiner_CO_disentangled(TCO_possible_gt,
                 "loss_xy": loss_xy,
                 "loss_z": loss_z
     }
-    wandb.log({"loss_orn": loss_orn,
-                "loss_xy": loss_xy,
-                "loss_z": loss_z
+    
+    wandb.log({"loss_orn": torch.sum(loss_orn) / wandb.config.batch_size,
+                "loss_xy": torch.sum(loss_xy) / wandb.config.batch_size,
+                "loss_z": torch.sum(loss_z) / wandb.config.batch_size
     })
-    for k, v in log_dict.items():
-        logger.info(f"k: {v}")
-    return loss_orn + loss_xy + loss_z * 10
+    return loss_orn + loss_xy + loss_z
 
 
 def loss_refiner_CO_disentangled_quaternions(TCO_possible_gt,
@@ -148,9 +147,9 @@ def loss_refiner_CO_disentangled_quaternions(TCO_possible_gt,
     vz = vxvyvz[:, [2]]
     TCO_pred_z[:, [2], [3]] = vz * z_input
 
-    loss_orn, _ = loss_CO_symmetric(TCO_possible_gt, TCO_pred_orn, points, l1_or_l2=l2)
-    loss_xy, _ = loss_CO_symmetric(TCO_possible_gt, TCO_pred_xy, points, l1_or_l2=l2)
-    loss_z, _ = loss_CO_symmetric(TCO_possible_gt, TCO_pred_z, points, l1_or_l2=l2)
+    loss_orn, _ = loss_CO_symmetric(TCO_possible_gt, TCO_pred_orn, points, l1_or_l2=l1)
+    loss_xy, _ = loss_CO_symmetric(TCO_possible_gt, TCO_pred_xy, points, l1_or_l2=l1)
+    loss_z, _ = loss_CO_symmetric(TCO_possible_gt, TCO_pred_z, points, l1_or_l2=l1)
     logger.info(f"TCO_possible_gt {TCO_possible_gt}")
     logger.info(f"TCO_pred_orn {TCO_pred_orn}")    
     logger.info(f"TCO_pred_xy {TCO_pred_xy}")

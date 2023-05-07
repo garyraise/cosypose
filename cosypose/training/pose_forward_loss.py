@@ -44,7 +44,6 @@ def h_pose(model, mesh_db, data, meters,
                              trans_std=[0.01, 0.01, 0.05])
     else:
         raise ValueError('Unknown input generator', input_generator)
-    logger.info(f"TCO_init {TCO_init}")
 
     # model.module.enable_debug()
     outputs = model(images=images, K=K, labels=labels,
@@ -73,8 +72,9 @@ def h_pose(model, mesh_db, data, meters,
                 K_crop=K_crop, points=points,
                 _iteration=n # TODO # n_iterations=1
             )
-            wandb.log({"loss_TCO_iter": loss_TCO_iter,
+            wandb.log({"loss_TCO_iter": torch.sum(loss_TCO_iter) / wandb.config.batch_size,
             })
+
         else:
             loss_TCO_iter = compute_ADD_L1_loss(
                 TCO_possible_gt[:, 0], TCO_pred, points
