@@ -304,7 +304,6 @@ def train_pose(args):
     lr_scheduler.last_epoch = start_epoch - 1
     lr_scheduler.step()
     config_dict = args
-    print("config_dict",type(args))
     wandb.init(
             project=args.config,
             config=config_dict

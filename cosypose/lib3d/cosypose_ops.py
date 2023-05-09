@@ -114,7 +114,8 @@ def loss_refiner_CO_disentangled(TCO_possible_gt,
                 "loss_xy": torch.sum(loss_xy) / wandb.config.batch_size,
                 "loss_z": torch.sum(loss_z) / wandb.config.batch_size
     })
-    return loss_orn + loss_xy + loss_z
+    return loss_orn
+    # return loss_orn + loss_xy + loss_z
 
 
 def loss_refiner_CO_disentangled_quaternions(TCO_possible_gt,

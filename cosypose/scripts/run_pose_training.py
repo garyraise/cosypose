@@ -51,15 +51,15 @@ def make_cfg(args):
     cfg.coarse_run_id_for_test = None
 
     # Optimizer
-    cfg.lr = 1e-4
+    cfg.lr = 5e-5
     cfg.weight_decay = 0.
-    cfg.n_epochs_warmup = 100 # 300, 50
+    cfg.n_epochs_warmup = 1 # 300, 50
     cfg.lr_epoch_decay = 500
     cfg.clip_grad_norm = 0.5
 
     # Training
     cfg.batch_size = 8
-    cfg.epoch_size = 115200 # 4 * cfg.batch_size
+    cfg.epoch_size = 2000 # 4 * cfg.batch_size
     cfg.n_epochs = 400 # 700
     cfg.n_dataloader_workers = N_WORKERS
 

@@ -222,7 +222,7 @@ def train_detector(args):
     if args.n_epochs_warmup == 0:
         lambd = lambda epoch: 1
     else:
-        n_batches_warmup = args.n_epochs_warmup * (args.epoch_size // args.batch_size)
+        n_batches_warmup = args.n_epochs_warmup # * (args.epoch_size // args.batch_size)
         lambd = lambda batch: (batch + 1) / n_batches_warmup
     lr_scheduler_warmup = torch.optim.lr_scheduler.LambdaLR(optimizer, lambd)
     lr_scheduler_warmup.last_epoch = start_epoch * args.epoch_size // args.batch_size
