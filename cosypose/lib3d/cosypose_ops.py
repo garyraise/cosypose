@@ -64,20 +64,20 @@ def loss_refiner_CO_disentangled(TCO_possible_gt,
 
     dR = compute_rotation_matrix_from_ortho6d(refiner_outputs[:, 0:6])
     vxvyvz = refiner_outputs[:, 6:9]
-    logger.info(f"vxvyvz {vxvyvz}")    
+    logger.debug(f"vxvyvz {vxvyvz}")    
     TCO_gt = TCO_possible_gt[:, 0]
-    logger.info(f"TCO_gt {TCO_gt}")
+    logger.debug(f"TCO_gt {TCO_gt}")
 
     TCO_pred_orn = TCO_gt.clone()
     TCO_pred_orn[:, :3, :3] = dR @ TCO_input[:, :3, :3]
-    logger.info(f"dR {dR}")    
+    logger.debug(f"dR {dR}")    
 
     TCO_pred_xy = TCO_gt.clone()
     z_gt = TCO_gt[:, 2, [3]]
     z_input = TCO_input[:, 2, [3]]
     vxvy = vxvyvz[:, :2]
     fxfy = K_crop[:, [0, 1], [0, 1]]
-    logger.info(f"fxfy {fxfy}")
+    logger.debug(f"fxfy {fxfy}")
     xsrcysrc = TCO_input[:, :2, 3]
     TCO_pred_xy[:, :2, 3] = ((vxvy / fxfy) + (xsrcysrc / z_input.repeat(1, 2))) * z_gt.repeat(1, 2)
 

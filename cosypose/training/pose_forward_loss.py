@@ -39,9 +39,9 @@ def h_pose(model, mesh_db, data, meters,
             TCO_init = TCO_init_from_boxes_zup_autodepth(bboxes, points, K)
         else:
             TCO_init = TCO_init_from_boxes(z_range=(0.3, 0.3), boxes=bboxes, K=K)
-        TCO_init = add_noise(TCO_init,
-                             euler_deg_std=[0, 0, 0],
-                             trans_std=[0.01, 0.01, 0.05])
+        # TCO_init = add_noise(TCO_init,
+        #                      euler_deg_std=[0, 0, 0],
+        #                      trans_std=[0.01, 0.01, 0.05])
     else:
         raise ValueError('Unknown input generator', input_generator)
 

@@ -30,7 +30,8 @@ def get_meshes_bounding_boxes(pts):
 
 def sample_points(points, n_points, deterministic=False):
     assert points.dim() == 3
-    assert n_points <= points.shape[1]
+    if n_points >= points.shape[1]:
+        return points
     if deterministic:
         np_random = np.random.RandomState(0)
     else:

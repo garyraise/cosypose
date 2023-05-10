@@ -51,9 +51,9 @@ def make_cfg(args):
     cfg.coarse_run_id_for_test = None
 
     # Optimizer
-    cfg.lr = 5e-5
+    cfg.lr = 1e-4 # 5e-5
     cfg.weight_decay = 0.
-    cfg.n_epochs_warmup = 1 # 300, 50
+    cfg.n_epochs_warmup = 0 # 300, 5[0
     cfg.lr_epoch_decay = 500
     cfg.clip_grad_norm = 0.5
 
@@ -191,11 +191,16 @@ def make_cfg(args):
             cfg.background_augmentation=False
             cfg.gray_augmentation=False
         cfg.train_ds_names = [(train_ds_names, 1)]
-        cfg.object_ds_name = object_ds_name
+       
         if '04_22' in args.config:
-            # object_set = object_set + '_04_22'
+            object_ds_name = object_ds_name + '_04_22'
             train_ds_names = train_ds_names + '_04_22'
             cfg.train_ds_names.append((train_ds_names, 1))
+        if '05_04' in args.config:
+            object_ds_name = object_ds_name + '_05_04'
+            train_ds_names = train_ds_names + '_05_04'
+            cfg.train_ds_names = [(train_ds_names, 1)]
+        cfg.object_ds_name = object_ds_name
 
         print("cfg.train_ds_names", cfg.train_ds_names)
         print("cfg.object_ds_name", cfg.object_ds_name)
@@ -209,7 +214,7 @@ def make_cfg(args):
         if 'coarse' in args.config:
             cfg.init_method = 'from_boxes'
             # cfg.TCO_input_generator = 'fixed+trans_noise'
-            cfg.TCO_input_generator = 'fixed+trans_noise'
+            cfg.TCO_input_generator = 'fixed'#+trans_noise'
         elif 'refiner' in args.config:
             cfg.TCO_input_generator = 'gt+noise'
         # TODO: cfg.TCO_input_generator
