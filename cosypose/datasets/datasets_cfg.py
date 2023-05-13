@@ -139,6 +139,9 @@ def make_scene_dataset(ds_name, n_frames=None):
             ds_dir = BOP_DS_DIR / 'bracket_assembly_04_22'
         if '05_04' in ds_name:
             ds_dir = BOP_DS_DIR / 'syn_fos_j_assembly_left_centered_05_04_2023_15_15'
+            train_classes = ['4'] if 'nut' in ds_name else None
+        logger.info(f"ds_dir{ds_dir}")
+        logger.info(f"train_classes{train_classes}")
         ds = BOPDataset(ds_dir, split='train_pbr', train_classes=train_classes)
     # Synthetic datasets
     elif 'synthetic.' in ds_name:
@@ -195,6 +198,7 @@ def make_object_dataset(ds_name):
             ds_dir = BOP_DS_DIR / 'bracket_assembly_04_22'
         if '05_04' in ds_name:
             ds_dir = BOP_DS_DIR / 'syn_fos_j_assembly_left_centered_05_04_2023_15_15'
+            train_classes = ['4'] if 'nut' in ds_name else None
         object_ds_dir = ds_dir / 'models'
         ds = BOPObjectDataset(object_ds_dir, mesh_units='m', 
                               ignore_symmetric=ignore_symmetric, 
