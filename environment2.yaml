@@ -1,291 +1,180 @@
-name: cosypose
-channels:
-  - conda-forge
-  - pytorch
-dependencies:
-  - _libgcc_mutex=0.1=conda_forge
-  - _openmp_mutex=4.5=2_gnu
-  - assimp=4.1.0=hac5445f_2
-  - async_generator=1.10=py_0
-  - attrs=22.2.0=pyh71513ae_0
-  - backcall=0.2.0=pyh9f0ad1d_0
-  - backports=1.0=pyhd8ed1ab_3
-  - backports.functools_lru_cache=1.6.4=pyhd8ed1ab_0
-  - binutils_impl_linux-64=2.33.1=h53a641e_8
-  - binutils_linux-64=2.33.1=h9595d00_17
-  - bleach=6.0.0=pyhd8ed1ab_0
-  - boost=1.72.0=py37h48f8a5e_1
-  - boost-cpp=1.72.0=h8e57a91_0
-  - brotlipy=0.7.0=py37hb5d75c8_1001
-  - bzip2=1.0.8=h516909a_3
-  - c-ares=1.17.1=h36c2ea0_0
-  - ca-certificates=2022.12.7=ha878542_0
-  - cmake=3.14.0=hf94ab9c_0
-  - console_bridge=1.0.1=hc9558a2_0
-  - cryptography=3.2.1=py37hc72a4ac_0
-  - curl=7.71.1=he644dc0_8
-  - cycler=0.11.0=pyhd8ed1ab_0
-  - dbus=1.13.6=hfdff14a_1
-  - debugpy=1.2.0=py37h745909e_0
-  - decorator=5.1.1=pyhd8ed1ab_0
-  - defusedxml=0.7.1=pyhd8ed1ab_0
-  - eigen=3.3.8=h0efe328_0
-  - eigenpy=2.5.0=py37h303dafd_2
-  - entrypoints=0.4=pyhd8ed1ab_0
-  - exceptiongroup=1.1.1=pyhd8ed1ab_0
-  - expat=2.2.9=he1b5a44_2
-  - ffmpeg=4.2.3=h167e202_0
-  - firefox=83.0=h58526e2_0
-  - fontconfig=2.13.1=h86ecdb6_1001
-  - freetype=2.10.4=h7ca028e_0
-  - gcc_impl_linux-64=7.3.0=hd420e75_5
-  - gcc_linux-64=7.3.0=h553295d_17
-  - geckodriver=0.28.0=h58526e2_0
-  - gettext=0.19.8.1=hf34092f_1004
-  - git=2.28.0=pl526h5e3e691_1
-  - git-lfs=3.3.0=ha770c72_0
-  - glib=2.66.3=h58526e2_0
-  - gmp=6.2.1=h58526e2_0
-  - gnutls=3.6.13=h85f3911_1
-  - gst-plugins-base=1.14.5=h0935bb2_2
-  - gstreamer=1.14.5=h36ae1b5_2
-  - gxx_impl_linux-64=7.3.0=hdf63c60_5
-  - gxx_linux-64=7.3.0=h553295d_17
-  - h11=0.14.0=pyhd8ed1ab_0
-  - hpp-fcl=1.3.0=py37h006d9f0_2
-  - icu=64.2=he1b5a44_1
-  - idna=3.4=pyhd8ed1ab_0
-  - ipython=7.33.0=py37h89c1867_0
-  - ipython_genutils=0.2.0=py_1
-  - ipywidgets=8.0.6=pyhd8ed1ab_0
-  - jedi=0.18.2=pyhd8ed1ab_0
-  - jpeg=9d=h36c2ea0_0
-  - jupyter=1.0.0=py37h89c1867_7
-  - jupyter_client=5.3.4=py37_0
-  - jupyter_console=6.4.2=pyhd8ed1ab_0
-  - jupyter_core=4.5.0=py_0
-  - jupyterlab_widgets=3.0.7=pyhd8ed1ab_0
-  - krb5=1.17.2=h926e7f8_0
-  - lame=3.100=h14c3975_1001
-  - ld_impl_linux-64=2.33.1=h53a641e_8
-  - libblas=3.9.0=8_openblas
-  - libcblas=3.9.0=8_openblas
-  - libcurl=7.71.1=hcdd3856_8
-  - libedit=3.1.20191231=he28a2e2_2
-  - libev=4.33=h516909a_1
-  - libffi=3.2.1=he1b5a44_1007
-  - libgcc-ng=9.2.0=h24d8f2e_2
-  - libgfortran-ng=7.5.0=h14aa051_20
-  - libgfortran4=7.5.0=h14aa051_20
-  - libglib=2.66.3=hbe7bbb4_0
-  - libgomp=9.2.0=h24d8f2e_2
-  - libiconv=1.16=h516909a_0
-  - liblapack=3.9.0=8_openblas
-  - libnghttp2=1.41.0=h8cfc5f6_2
-  - libopenblas=0.3.12=pthreads_hb3c22a3_1
-  - libpng=1.6.37=h21135ba_2
-  - libsodium=1.0.18=h36c2ea0_1
-  - libssh2=1.9.0=hab1572f_5
-  - libstdcxx-ng=9.2.0=hdf63c60_2
-  - libtiff=4.0.9=h648cc4a_1002
-  - libuuid=2.32.1=h14c3975_1000
-  - libuv=1.40.0=hd18ef5c_0
-  - libxcb=1.13=h14c3975_1002
-  - libxml2=2.9.10=hee79883_0
-  - matplotlib-base=3.2.2=py37h30547a4_0
-  - matplotlib-inline=0.1.6=pyhd8ed1ab_0
-  - nbformat=5.8.0=pyhd8ed1ab_0
-  - ncurses=6.2=h58526e2_4
-  - nest-asyncio=1.5.6=pyhd8ed1ab_0
-  - nettle=3.6=he412f7d_0
-  - numpy=1.19.4=py37h7e9df27_1
-  - octomap=1.9.5=hc9558a2_1
-  - olefile=0.46=pyh9f0ad1d_1
-  - openh264=2.1.1=h8b12597_0
-  - openssl=1.1.1h=h516909a_0
-  - outcome=1.2.0=pyhd8ed1ab_0
-  - packaging=23.0=pyhd8ed1ab_0
-  - pandoc=2.19.2=ha770c72_0
-  - pandocfilters=1.5.0=pyhd8ed1ab_0
-  - parso=0.8.3=pyhd8ed1ab_0
-  - patsy=0.5.3=pyhd8ed1ab_0
-  - pcre=8.44=he1b5a44_0
-  - perl=5.26.2=h36c2ea0_1008
-  - pexpect=4.8.0=pyh1a96a4e_2
-  - pickleshare=0.7.5=py_1003
-  - pillow=6.0.0=py37he7afcd5_0
-  - pinocchio=2.3.1=py37h006d9f0_2
-  - pip=23.0.1=pyhd8ed1ab_0
-  - prometheus_client=0.16.0=pyhd8ed1ab_0
-  - prompt-toolkit=3.0.38=pyha770c72_0
-  - prompt_toolkit=3.0.38=hd8ed1ab_0
-  - pthread-stubs=0.4=h36c2ea0_1001
-  - ptyprocess=0.7.0=pyhd3deb0d_0
-  - pycparser=2.21=pyhd8ed1ab_0
-  - pygments=2.14.0=pyhd8ed1ab_0
-  - pyopenssl=20.0.1=pyhd8ed1ab_0
-  - pyparsing=3.0.9=pyhd8ed1ab_0
-  - pyqt=5.9.2=py37hcca6a23_4
-  - pysocks=1.7.1=py37h89c1867_5
-  - python=3.7.6=cpython_h8356626_6
-  - python-dateutil=2.8.2=pyhd8ed1ab_0
-  - python-fastjsonschema=2.16.3=pyhd8ed1ab_0
-  - python_abi=3.7=2_cp37m
-  - pytz=2023.3=pyhd8ed1ab_0
-  - qt=5.9.7=h0c104cb_3
-  - qtconsole=5.4.2=pyhd8ed1ab_0
-  - qtconsole-base=5.4.2=pyha770c72_0
-  - qtpy=2.3.1=pyhd8ed1ab_0
-  - rclone=1.62.2=h519d9b9_0
-  - readline=8.0=he28a2e2_2
-  - rhash=1.4.0=h36c2ea0_0
-  - seaborn=0.12.2=hd8ed1ab_0
-  - seaborn-base=0.12.2=pyhd8ed1ab_0
-  - send2trash=1.8.0=pyhd8ed1ab_0
-  - setuptools=59.8.0=py37h89c1867_1
-  - sip=4.19.8=py37hf484d3e_1000
-  - six=1.16.0=pyh6c4a22f_0
-  - sniffio=1.3.0=pyhd8ed1ab_0
-  - sortedcontainers=2.4.0=pyhd8ed1ab_0
-  - sqlite=3.33.0=h4cf870e_1
-  - statsmodels=0.12.1=py37ha21ca33_1
-  - terminado=0.17.1=pyh41d4057_0
-  - testpath=0.6.0=pyhd8ed1ab_0
-  - tinyxml=2.6.2=hc9558a2_1
-  - tk=8.6.11=h21135ba_0
-  - traitlets=5.9.0=pyhd8ed1ab_0
-  - trio=0.22.0=py37h89c1867_0
-  - trio-websocket=0.10.2=pyhd8ed1ab_0
-  - typing_extensions=4.5.0=pyha770c72_0
-  - urdfdom=1.0.4=hc9558a2_2
-  - urdfdom_headers=1.0.5=hc9558a2_2
-  - urllib3=1.26.15=pyhd8ed1ab_0
-  - wcwidth=0.2.6=pyhd8ed1ab_0
-  - wheel=0.40.0=pyhd8ed1ab_0
-  - widgetsnbextension=4.0.7=pyhd8ed1ab_0
-  - wsproto=1.2.0=pyhd8ed1ab_0
-  - x264=1!152.20180806=h14c3975_0
-  - xorg-libxau=1.0.9=h14c3975_0
-  - xorg-libxdmcp=1.1.3=h516909a_0
-  - xz=5.2.5=h516909a_1
-  - zeromq=4.3.3=h58526e2_3
-  - zipp=3.15.0=pyhd8ed1ab_0
-  - zlib=1.2.11=h36c2ea0_1011
-  - pip:
-      - aiohttp==3.8.4
-      - aiosignal==1.3.1
-      - anyio==3.6.2
-      - argon2-cffi==21.3.0
-      - argon2-cffi-bindings==21.2.0
-      - async-timeout==4.0.2
-      - asynctest==0.13.0
-      - bbox-visualizer==0.1.0
-      - beautifulsoup4==4.12.0
-      - bokeh==1.4.0
-      - certifi==2022.12.7
-      - cffi==1.15.1
-      - charset-normalizer==3.1.0
-      - click==8.1.3
-      - cloudpickle==2.2.1
-      - colorama==0.4.3
-      - cython==0.29.21
-      - dask==2022.2.0
-      - distributed==2.9.1
-      - freetype-py==2.3.0
-      - frozenlist==1.3.3
-      - fsspec==2023.1.0
-      - glumpy==1.2.0
-      - h5py==3.8.0
-      - heapdict==1.0.1
-      - hsluv==5.0.3
-      - imageio==2.6.1
-      - importlib-metadata==6.1.0
-      - importlib-resources==5.12.0
-      - ipdb==0.12.3
-      - ipykernel==6.16.2
-      - ipython-genutils==0.2.0
-      - jinja2==3.0.0
-      - job-runner==0.0.1
-      - joblib==0.14.1
-      - json5==0.9.11
-      - jsonpatch==1.32
-      - jsonpointer==2.3
-      - jsonschema==4.17.3
-      - jupyter-client==7.4.9
-      - jupyter-contrib-core==0.4.2
-      - jupyter-core==4.12.0
-      - jupyter-highlight-selected-word==0.2.0
-      - jupyter-nbextensions-configurator==0.6.1
-      - jupyter-server==1.23.6
-      - jupyter-server-proxy==1.5.0
-      - jupyterlab==1.2.4
-      - jupyterlab-pygments==0.2.2
-      - jupyterlab-server==1.0.6
-      - kiwisolver==1.4.4
-      - locket==1.0.0
-      - lxml==4.4.2
-      - markupsafe==2.1.2
-      - matplotlib==3.1.2
-      - mistune==2.0.5
-      - msgpack==1.0.5
-      - multidict==6.0.4
-      - nbclassic==0.5.3
-      - nbclient==0.7.2
-      - nbconvert==7.2.10
-      - networkx==2.6.3
-      - notebook==6.5.3
-      - notebook-shim==0.2.2
-      - nvidia-cublas-cu11==11.10.3.66
-      - nvidia-cuda-nvrtc-cu11==11.7.99
-      - nvidia-cuda-runtime-cu11==11.7.99
-      - nvidia-cudnn-cu11==8.5.0.96
-      - opencv-contrib-python==4.4.0.42
-      - opencv-python==4.1.2.30
-      - pandas==0.25.3
-      - partd==1.3.0
-      - phantomjs==1.4.1
-      - pkgutil-resolve-name==1.3.10
-      - plyfile==0.7.1
-      - progressbar==2.5
-      - psutil==5.9.4
-      - pyarrow==11.0.0
-      - pybullet==3.2.5
-      - pycollada==0.6
-      - pyopengl==3.1.0
-      - pypng==0.0.20
-      - pyrsistent==0.19.3
-      - pywavefront==1.3.1
-      - pywavelets==1.3.0
-      - pyyaml==5.1
-      - pyzmq==25.0.2
-      - requests==2.28.2
-      - scikit-image==0.16.2
-      - scikit-learn==0.22.1
-      - scikit-video==1.1.11
-      - scipy==1.4.1
-      - selenium==3.3.0
-      - shapely==1.7.0
-      - simpervisor==0.4
-      - simplejson==3.17.0
-      - soupsieve==2.4
-      - tblib==1.7.0
-      - tinycss2==1.2.1
-      - toolz==0.12.0
-      - torch==1.13.1
-      - torchnet==0.0.4
-      - torchvision==0.14.1
-      - tornado==6.2
-      - tqdm==4.41.1
-      - transforms3d==0.3.1
-      - triangle==20220202
-      - trimesh==3.5.16
-      - typing==3.7.4.3
-      - visdom==0.2.4
-      - vispy==0.12.2
-      - webencodings==0.5.1
-      - websocket-client==1.5.1
-      - wget==3.2
-      - xarray==0.14.1
-      - yarl==1.8.2
-      - zict==2.2.0
-prefix: /home/ubuntu/anaconda3/envs/cosypose
+addict==2.4.0
+aiohttp==3.8.4
+aiosignal==1.3.1
+anyio==3.6.2
+appdirs==1.4.4
+argon2-cffi==21.3.0
+argon2-cffi-bindings==21.2.0
+async-timeout==4.0.2
+asynctest==0.13.0
+attrs==23.1.0
+backcall @ file:///home/conda/feedstock_root/build_artifacts/backcall_1592338393461/work
+backports.functools-lru-cache @ file:///home/conda/feedstock_root/build_artifacts/backports.functools_lru_cache_1618230623929/work
+beautifulsoup4==4.12.2
+bleach==6.0.0
+-e git+https://github.com/DLR-RM/BlenderProc.git@bff4136f3b8e4bbe7929f2611c8d8f10d0b203a1#egg=blenderproc
+bokeh==1.4.0
+certifi==2022.12.7
+cffi==1.15.1
+charset-normalizer==3.1.0
+click==8.1.3
+cloudpickle @ file:///home/conda/feedstock_root/build_artifacts/cloudpickle_1674202310934/work
+colorama==0.4.3
+ConfigArgParse==1.5.3
+-e git+ssh://git@github.com/garyraise/cosypose.git@c80cd6abc9f145c41b06525bc358958108df39a1#egg=cosypose&subdirectory=../../cosypose
+cycler==0.11.0
+Cython==0.29.21
+cytoolz==0.11.0
+dash==2.9.3
+dash-core-components==2.0.0
+dash-html-components==2.0.0
+dash-table==5.0.0
+dask @ file:///home/conda/feedstock_root/build_artifacts/dask-core_1644602974678/work
+dask-jobqueue @ file:///home/conda/feedstock_root/build_artifacts/dask-jobqueue_1657781391231/work
+decorator @ file:///home/conda/feedstock_root/build_artifacts/decorator_1641555617451/work
+defusedxml==0.7.1
+deprecation==2.1.0
+distributed==2.9.1
+docker-pycreds==0.4.0
+fastjsonschema==2.16.3
+Flask==2.2.5
+frozenlist==1.3.3
+fsspec @ file:///home/conda/feedstock_root/build_artifacts/fsspec_1674184942191/work
+gitdb==4.0.10
+GitPython==3.1.31
+glumpy==1.2.0
+h5py==3.8.0
+HeapDict==1.0.1
+idna==3.4
+imageio==2.6.1
+importlib-metadata==6.6.0
+importlib-resources==5.12.0
+ipdb==0.12.3
+ipykernel==5.1.3
+ipython @ file:///home/conda/feedstock_root/build_artifacts/ipython_1651240553635/work
+ipython-genutils==0.2.0
+ipywidgets==8.0.6
+itsdangerous==2.1.2
+jedi @ file:///home/conda/feedstock_root/build_artifacts/jedi_1669134318875/work
+Jinja2==3.0.0
+job-runner==0.0.1
+joblib==0.14.1
+json5==0.9.11
+jsonpatch==1.32
+jsonpointer==2.3
+jsonschema==4.17.3
+jupyter-client==5.3.4
+jupyter-server==1.24.0
+jupyter-server-proxy==1.5.0
+jupyter_core==4.12.0
+jupyter_packaging==0.12.3
+jupyterlab==1.2.4
+jupyterlab-pygments==0.2.2
+jupyterlab-server==1.0.6
+jupyterlab-widgets==3.0.7
+kiwisolver==1.4.4
+locket @ file:///home/conda/feedstock_root/build_artifacts/locket_1650660393415/work
+lxml==4.4.2
+MarkupSafe==2.1.2
+matplotlib==3.1.2
+matplotlib-inline @ file:///home/conda/feedstock_root/build_artifacts/matplotlib-inline_1660814786464/work
+mistune==2.0.5
+msgpack @ file:///home/conda/feedstock_root/build_artifacts/msgpack-python_1605895130094/work
+multidict==6.0.4
+nbclassic==1.0.0
+nbclient==0.7.4
+nbconvert==7.3.1
+nbformat==5.7.0
+nest-asyncio==1.5.6
+networkx==2.6.3
+notebook==6.5.4
+notebook_shim==0.2.3
+numpy @ file:///home/conda/feedstock_root/build_artifacts/numpy_1604945996409/work
+nvidia-cublas-cu11==11.10.3.66
+nvidia-cuda-nvrtc-cu11==11.7.99
+nvidia-cuda-runtime-cu11==11.7.99
+nvidia-cudnn-cu11==8.5.0.96
+olefile @ file:///home/conda/feedstock_root/build_artifacts/olefile_1602866521163/work
+open3d==0.17.0
+opencv-contrib-python==4.4.0.42
+opencv-python==4.1.2.30
+packaging @ file:///home/conda/feedstock_root/build_artifacts/packaging_1681337016113/work
+pandas==1.3.5
+pandocfilters==1.5.0
+parso @ file:///home/conda/feedstock_root/build_artifacts/parso_1638334955874/work
+partd @ file:///home/conda/feedstock_root/build_artifacts/partd_1681246756246/work
+pathtools==0.1.2
+pexpect @ file:///home/conda/feedstock_root/build_artifacts/pexpect_1667297516076/work
+pickleshare @ file:///home/conda/feedstock_root/build_artifacts/pickleshare_1602536217715/work
+Pillow==9.5.0
+pkgutil_resolve_name==1.3.10
+plotly==5.14.1
+plyfile==0.7.1
+progressbar==2.5
+prometheus-client==0.16.0
+prompt-toolkit @ file:///home/conda/feedstock_root/build_artifacts/prompt-toolkit_1677600924538/work
+protobuf==4.22.4
+psutil @ file:///home/conda/feedstock_root/build_artifacts/psutil_1603570991184/work
+ptyprocess @ file:///home/conda/feedstock_root/build_artifacts/ptyprocess_1609419310487/work/dist/ptyprocess-0.7.0-py2.py3-none-any.whl
+pyarrow==12.0.0
+pybullet==3.2.5
+pycollada==0.6
+pycparser==2.21
+Pygments @ file:///home/conda/feedstock_root/build_artifacts/pygments_1681904169130/work
+PyOpenGL==3.1.0
+pyparsing==3.0.9
+pypng==0.0.20
+pyquaternion==0.9.9
+pyrsistent==0.19.3
+python-dateutil==2.8.2
+pytz==2023.3
+PyWavefront==1.3.1
+PyWavelets==1.3.0
+PyYAML==5.3.1
+pyzmq==25.0.2
+requests==2.30.0
+scikit-image==0.16.2
+scikit-learn==0.22.1
+scikit-video==1.1.11
+scipy==1.4.1
+seaborn==0.12.2
+Send2Trash==1.8.2
+sentry-sdk==1.22.1
+setproctitle==1.3.2
+Shapely==1.7.0
+simpervisor==0.4
+simplejson==3.17.0
+six==1.16.0
+smmap==5.0.0
+sniffio==1.3.0
+sortedcontainers @ file:///home/conda/feedstock_root/build_artifacts/sortedcontainers_1621217038088/work
+soupsieve==2.4.1
+tblib @ file:///home/conda/feedstock_root/build_artifacts/tblib_1616261298899/work
+tenacity==8.2.2
+terminado==0.17.1
+tinycss2==1.2.1
+tomlkit==0.11.8
+toolz @ file:///home/conda/feedstock_root/build_artifacts/toolz_1657485559105/work
+torch==1.13.1
+torchnet==0.0.4
+torchvision==0.14.1
+tornado @ file:///home/conda/feedstock_root/build_artifacts/tornado_1604105014127/work
+tqdm==4.41.1
+traitlets @ file:///home/conda/feedstock_root/build_artifacts/traitlets_1675110562325/work
+transforms3d==0.3.1
+triangle==20220202
+trimesh==3.5.16
+typing_extensions==4.5.0
+urllib3==1.26.15
+visdom==0.2.4
+wandb==0.15.2
+wcwidth @ file:///home/conda/feedstock_root/build_artifacts/wcwidth_1673864653149/work
+webencodings==0.5.1
+websocket-client==1.5.1
+Werkzeug==2.2.3
+wget==3.2
+widgetsnbextension==4.0.7
+xarray==0.14.1
+yarl==1.9.2
+zict @ file:///home/conda/feedstock_root/build_artifacts/zict_1651156074437/work
+zipp==3.15.0

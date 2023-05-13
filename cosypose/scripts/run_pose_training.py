@@ -2,7 +2,7 @@ import argparse
 import numpy as np
 import os
 from colorama import Fore, Style
-
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 from cosypose.training.train_pose import train_pose
 from cosypose.utils.logging import get_logger
 logger = get_logger(__name__)
