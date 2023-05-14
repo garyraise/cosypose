@@ -1,5 +1,6 @@
 from pathlib import Path
 import argparse
+import open3d as o3d
 import shutil
 from cosypose.config import LOCAL_DATA_DIR
 from tqdm import tqdm
@@ -19,12 +20,14 @@ def convert_obj_dataset_to_urdfs(obj_ds_name, texture_size=(1024, 1024), n_faces
         out_dir = urdf_dir / obj['label']
         out_dir.mkdir(exist_ok=True)
         obj_path = out_dir / ply_path.with_suffix('.obj').name
-        ply_to_obj(ply_path, obj_path, texture_size=texture_size)
+        mesh = o3d.io.read_triangle_mesh(str(ply_path))
+        o3d.io.write_triangle_mesh(str(obj_path), mesh)
+        # ply_to_obj(ply_path, obj_path, texture_size=texture_size)
 
-        if n_faces is not None:
-            downsample_path = obj_path.parent / 'downsample.obj'
-            downsample_obj(obj_path, downsample_path, n_faces=n_faces)
-            shutil.copy(downsample_path, obj_path)
+        # if n_faces is not None:
+        #     downsample_path = obj_path.parent / 'downsample.obj'
+        #     downsample_obj(obj_path, downsample_path, n_faces=n_faces)
+        #     shutil.copy(downsample_path, obj_path)
 
         obj_to_urdf(obj_path, obj_path.with_suffix('.urdf'))
 

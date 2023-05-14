@@ -21,7 +21,7 @@ click==8.1.3
 cloudpickle @ file:///home/conda/feedstock_root/build_artifacts/cloudpickle_1674202310934/work
 colorama==0.4.3
 ConfigArgParse==1.5.3
--e git+ssh://git@github.com/garyraise/cosypose.git@c80cd6abc9f145c41b06525bc358958108df39a1#egg=cosypose&subdirectory=../../cosypose
+-e git+ssh://git@github.com/garyraise/cosypose.git@fb5d3fb1629d01610690077c2a0a48942a76dfc9#egg=cosypose&subdirectory=../../cosypose
 cycler==0.11.0
 Cython==0.29.21
 cytoolz==0.11.0
