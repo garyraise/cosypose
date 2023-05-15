@@ -136,7 +136,7 @@ def make_eval_bundle(args, model_training):
             coarse_k = 'posecnn_coarse'
 
         elif 'bracket_assembly' in ds_name:
-            detections = load_custom_detection_from_gt(train_classes=['5']).cpu()
+            detections = load_custom_detection_from_gt(ds_name).cpu()
             # TODO: add handler for multiple detections
             coarse_detections = detections
             det_k = 'pix2pose_detections'

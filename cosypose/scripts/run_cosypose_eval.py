@@ -140,11 +140,20 @@ def load_posecnn_results():
     return data
 
 @MEMORY.cache
-def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None, train_classes=None, debug=False):
-    if debug:
-        path_data_dir = LOCAL_DATA_DIR / 'bop_datasets' / 'bracket_assembly_debug'
-    else:
-        path_data_dir = LOCAL_DATA_DIR / 'bop_datasets' / 'bracket_assembly'
+def load_custom_detection_from_gt(ds_name='bracket_assembly'):
+    train_classes = ['5'] if 'nut' in ds_name else None
+    debug = 'debug' in ds_name
+    dataset_name = 'bracket_assembly'
+    if 'debug' in ds_name:
+        dataset_name = 'bracket_assembly_debug'
+    if '04_22' in ds_name:
+        dataset_name = 'bracket_assembly_04_22'
+    if '05_04' in ds_name:
+        dataset_name = 'syn_fos_j_assembly_left_centered_05_04_2023_15_15'
+        train_classes = ['4'] if 'nut' in ds_name else None
+    print(dataset_name, train_classes)
+    path_data_dir = LOCAL_DATA_DIR / 'bop_datasets' / dataset_name
+    print(path_data_dir)
     path_scene_dir = os.path.join(path_data_dir, "train_pbr")
     scene_names = os.listdir(path_scene_dir)
     infos, poses, bboxes = [], [], []
@@ -159,7 +168,6 @@ def load_custom_detection_from_gt(target_scene_id=None, target_img_id=None, trai
         with open(path_scene_gt_camera, "r") as f:
             json_gt_camera = json.load(f)
         img_names_rgb = os.listdir(os.path.join(path_scene_dir, scene_name, "rgb"))
-        from cosypose.lib3d import Transform
         for img_id, img_name in enumerate(img_names_rgb[:-1]):
             if not f"{img_id}" in json_data_gt_info:
                 continue
@@ -255,7 +263,6 @@ def load_pix2pose_results(all_detections=True, remove_incorrect_poses=False):
 
 def get_pose_meters(scene_ds):
     ds_name = scene_ds.name
-
     compute_add = False
     spheres_overlap_check = True
     large_match_threshold_diameter_ratio = 0.5
@@ -288,7 +295,7 @@ def get_pose_meters(scene_ds):
     elif 'ycbv' in ds_name:
         object_ds_name = 'ycbv.bop-compat.eval'  # This is important for definition of symmetric objects
     elif 'bracket_assembly' in ds_name:
-        object_ds_name = 'bracket_assembly'
+        object_ds_name = ds_name
     else:
         raise ValueError
 
@@ -446,13 +453,7 @@ def main():
         n_refiner_iterations = 2
     elif 'bracket_assembly' in args.config:
         # make nut-only object dataset or all categories
-        object_set = 'bracket_assembly'
-        if 'debug' in args.config:
-            object_set = object_set + '_debug'
-        if 'nut' in args.config:
-            object_set = object_set + '_nut'
-        if 'nosym' in args.config:
-            object_set = object_set + '_nosym'
+        object_set = args.config
         
         # # all cat_sym (baseline)
         # coarse_run_id = f'bracket_assembly_coarse--626765'
@@ -463,9 +464,9 @@ def main():
         # single_cat_sym
         # coarse_run_id = 'bracket_assembly_coarse--206480'
         # refiner_run_id = 'bracket_assembly_coarse--206480'
-        # 04_22_nut_sym
-        coarse_run_id = 'bracket_assembly_coarse--497150'
-        refiner_run_id = 'bracket_assembly_refiner--94975'
+        # 05_04
+        coarse_run_id = 'bracket_assembly_nut_05_04_nosym_noaug_coarse--246643'
+        refiner_run_id = 'bracket_assembly_nut_05_04_nosym_noaug_refiner--806506'
         # single frame sym nut
         
         n_coarse_iterations = 1
@@ -481,13 +482,7 @@ def main():
     elif args.config == 'ycbv':
         ds_name = 'ycbv.test.keyframes'
     elif 'bracket_assembly' in args.config:
-        ds_name = 'bracket_assembly' 
-        if '04_22' in args.config:
-            pass # TODO: add concatDataset
-        if 'debug' in args.config:
-            ds_name = ds_name + '_debug'
-        if 'nut' in args.config:
-            ds_name = ds_name + '_nut'
+        ds_name = args.config
     else:
         raise ValueError(args.config)
 
@@ -536,10 +531,7 @@ def main():
     if skip_predictions:
         pred_kwargs = {}
     elif 'bracket_assembly' in ds_name:
-        if 'nut' in ds_name:
-            bracket_detections = load_custom_detection_from_gt(train_classes=['5'], debug='debug' in ds_name).cpu()
-        else:
-            bracket_detections = load_custom_detection_from_gt().cpu()
+        bracket_detections = load_custom_detection_from_gt(ds_name).cpu()
         pred_kwargs = {
             'pix2pose_detections': dict(
                 detections=bracket_detections,

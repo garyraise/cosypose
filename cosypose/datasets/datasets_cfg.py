@@ -200,6 +200,7 @@ def make_object_dataset(ds_name):
             ds_dir = BOP_DS_DIR / 'syn_fos_j_assembly_left_centered_05_04_2023_15_15'
             train_classes = ['4'] if 'nut' in ds_name else None
         object_ds_dir = ds_dir / 'models'
+        # print("train_classes", train_classes)
         ds = BOPObjectDataset(object_ds_dir, mesh_units='m', 
                               ignore_symmetric=ignore_symmetric, 
                               train_classes=train_classes)

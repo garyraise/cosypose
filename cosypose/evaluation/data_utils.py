@@ -24,7 +24,7 @@ def parse_obs_data(obs):
             data[k] = torch.stack([torch.as_tensor(x) .float()for x in v])
 
     data['infos'] = pd.DataFrame(data['infos'])
-    TCO = invert_T(TWC).unsqueeze(0) @ data['TWO']
+    TCO = invert_T(TWC).unsqueeze(0) @ torch.as_tensor(data['TWO'])
 
     data = tc.PandasTensorCollection(
         infos=data['infos'],

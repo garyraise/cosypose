@@ -55,17 +55,23 @@ class MultiviewPredictionRunner:
 
                 for o, obj in enumerate(obs['objects']):
                     obj_info = dict(
-                        label=obj['name'],
+                        label=
+                        ['name'],
                         score=1.0,
                     )
                     obj_info.update(im_info)
                     bboxes.append(obj['bbox'])
                     det_infos.append(obj_info)
-
-        gt_detections = tc.PandasTensorCollection(
+        if len(bboxes)==0:
+            gt_detections = tc.PandasTensorCollection(
             infos=pd.DataFrame(det_infos),
-            bboxes=torch.as_tensor(np.stack(bboxes)),
+            bboxes=torch.as_tensor([]),
         )
+        else:
+            gt_detections = tc.PandasTensorCollection(
+                infos=pd.DataFrame(det_infos),
+                bboxes=torch.as_tensor(np.stack(bboxes)),
+            )
         cameras = tc.PandasTensorCollection(
             infos=pd.DataFrame(cam_infos),
             K=torch.as_tensor(np.stack(K)),
@@ -96,11 +102,13 @@ class MultiviewPredictionRunner:
             images = data['images'].cuda().float().permute(0, 3, 1, 2) / 255
             cameras = data['cameras'].cuda().float()
             gt_detections = data['gt_detections'].cuda().float()
-
+            n_gt_dets = len(gt_detections)
+            if n_gt_dets==0:
+                continue
             scene_id = np.unique(gt_detections.infos['scene_id'])
             view_ids = np.unique(gt_detections.infos['view_id'])
             group_id = np.unique(gt_detections.infos['group_id'])
-            n_gt_dets = len(gt_detections)
+            
             detections_debug[frame_id] = dict()
             detections_debug[frame_id]['gt_detections'] = gt_detections.tensors
             logger.debug(f"{'-'*80}")

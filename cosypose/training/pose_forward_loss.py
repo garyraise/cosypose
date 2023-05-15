@@ -34,7 +34,7 @@ def h_pose(model, mesh_db, data, meters,
         TCO_init = TCO_init_from_boxes(z_range=(0.3, 0.3), boxes=bboxes, K=K)
     elif input_generator == 'gt+noise':
         TCO_init = TCO_possible_gt[:, 0]
-        TCO_init = add_noise(TCO_init, euler_deg_std=[15, 15, 15], trans_std=[0.01, 0.01, 0.05])
+        TCO_init = add_noise(TCO_init, euler_deg_std=[5, 5, 5], trans_std=[0.005, 0.005, 0.005])
     elif input_generator == 'fixed+trans_noise':
         if cfg.init_method == 'z-up+auto-depth':
             TCO_init = TCO_init_from_boxes_zup_autodepth(bboxes, points, K)

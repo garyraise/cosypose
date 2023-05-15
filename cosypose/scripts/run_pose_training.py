@@ -214,7 +214,7 @@ def make_cfg(args):
         if 'coarse' in args.config:
             cfg.init_method = 'from_boxes'
             # cfg.TCO_input_generator = 'fixed+trans_noise'
-            cfg.TCO_input_generator = 'fixed'#+trans_noise'
+            cfg.TCO_input_generator = 'fixed'
         elif 'refiner' in args.config:
             cfg.TCO_input_generator = 'gt+noise'
         # TODO: cfg.TCO_input_generator

@@ -130,23 +130,25 @@ class PosePredictor(nn.Module):
 
             TCO_input = TCO_output
             for batch_id in range(images_crop.shape[0]):
-                image_viz = images_crop[batch_id,...].permute((1, 2, 0))[..., :4] * 255
-                image_viz = image_viz.to(torch.int64)
-                image_crop = wandb.Image(
-                    np.asarray(image_viz.cpu()), 
-                    caption=f"images_crop_{batch_id}"
-                    )
-                wandb.log({"image_crop": image_crop})
+                if self.training:
+                    image_viz = images_crop[batch_id,...].permute((1, 2, 0))[..., :4] * 255
+                    image_viz = image_viz.to(torch.int64)
+                    image_crop = wandb.Image(
+                        np.asarray(image_viz.cpu()), 
+                        caption=f"images_crop_{batch_id}"
+                        )
+                    wandb.log({"image_crop": image_crop})
 
             for batch_id in range(renders.shape[0]):
-                image_viz = renders[batch_id,...].permute((1, 2, 0))[..., :4] * 255
-                image_viz = image_viz.to(torch.int64)
-                render = wandb.Image(
-                    np.asarray(image_viz.cpu()), 
-                    caption=f"render_{batch_id}"
-                    )
-                wandb.log({"render": render})
-                    
+                if self.training:
+                    image_viz = renders[batch_id,...].permute((1, 2, 0))[..., :4] * 255
+                    image_viz = image_viz.to(torch.int64)
+                    render = wandb.Image(
+                        np.asarray(image_viz.cpu()), 
+                        caption=f"render_{batch_id}"
+                        )
+                    wandb.log({"render": render})
+                        
             if self.debug:
                 self.tmp_debug.update(output=outputs)
                 self.tmp_debug.update(
