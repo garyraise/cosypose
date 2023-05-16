@@ -151,9 +151,9 @@ def load_custom_detection_from_gt(ds_name='bracket_assembly'):
     if '05_04' in ds_name:
         dataset_name = 'syn_fos_j_assembly_left_centered_05_04_2023_15_15'
         train_classes = ['4'] if 'nut' in ds_name else None
-    print(dataset_name, train_classes)
+    # print(dataset_name, train_classes)
     path_data_dir = LOCAL_DATA_DIR / 'bop_datasets' / dataset_name
-    print(path_data_dir)
+    # print(path_data_dir)
     path_scene_dir = os.path.join(path_data_dir, "train_pbr")
     scene_names = os.listdir(path_scene_dir)
     infos, poses, bboxes = [], [], []

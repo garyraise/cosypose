@@ -131,18 +131,29 @@ def make_scene_dataset(ds_name, n_frames=None):
         ds_dir = BOP_DS_DIR / 'tudl'
         ds = BOPDataset(ds_dir, split='train_real')
     elif 'bracket_assembly' in ds_name:
+        categroy_to_model = {
+            'bolt': '1',
+            'nut': '5',
+        }
+        visib_fract = 0.5
         ds_dir = BOP_DS_DIR / 'bracket_assembly'
         if 'debug' in ds_name:
             ds_dir = BOP_DS_DIR / 'bracket_assembly_debug'
-        train_classes = ['5'] if 'nut' in ds_name else None
+        # train_classes = ['5'] if 'nut' in ds_name else None
         if '04_22' in ds_name:
             ds_dir = BOP_DS_DIR / 'bracket_assembly_04_22'
         if '05_04' in ds_name:
+            categroy_to_model = {
+            'bolt': '1',
+            'nut': '4',
+            }
             ds_dir = BOP_DS_DIR / 'syn_fos_j_assembly_left_centered_05_04_2023_15_15'
-            train_classes = ['4'] if 'nut' in ds_name else None
-        logger.info(f"ds_dir{ds_dir}")
-        logger.info(f"train_classes{train_classes}")
-        ds = BOPDataset(ds_dir, split='train_pbr', train_classes=train_classes)
+            # train_classes = ['4'] if 'nut' in ds_name else None
+         
+        train_classes = [v for k, v in categroy_to_model.items() if k in ds_name]
+        logger.info(f"ds_dir {ds_dir}")
+        logger.info(f"train_classes {train_classes}")
+        ds = BOPDataset(ds_dir, split='train_pbr', train_classes=train_classes, visib_fract_thres=visib_fract)
     # Synthetic datasets
     elif 'synthetic.' in ds_name:
         from .synthetic_dataset import SyntheticSceneDataset

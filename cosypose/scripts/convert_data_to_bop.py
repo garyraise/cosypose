@@ -4,31 +4,32 @@ import torch
 import torchvision
 from scipy.spatial.transform import Rotation
 from torch.utils.data import Dataset
+from pathlib import Path
 # from visual_servo.util import *
 
 from enum import Enum
 from torchvision.transforms.functional import resized_crop
 
-def rot_x(angle):
-    cosa = np.cos(angle)
-    sina = np.sin(angle)
-    return np.array([[1,0,0], [0, cosa, -sina], [0, sina, cosa]])
+# def rot_x(angle):
+#     cosa = np.cos(angle)
+#     sina = np.sin(angle)
+#     return np.array([[1,0,0], [0, cosa, -sina], [0, sina, cosa]])
 
-def rot_y(angle):
-    cosa = np.cos(angle)
-    sina = np.sin(angle)
-    return np.array([[cosa, 0, sina], [0,1,0], [-sina, 0, cosa]])
+# def rot_y(angle):
+#     cosa = np.cos(angle)
+#     sina = np.sin(angle)
+#     return np.array([[cosa, 0, sina], [0,1,0], [-sina, 0, cosa]])
 
-def rot_z(angle):
-    cosa = np.cos(angle)
-    sina = np.sin(angle)
-    return np.array([[cosa, -sina, 0], [sina, cosa, 0], [0,0,1]])
+# def rot_z(angle):
+#     cosa = np.cos(angle)
+#     sina = np.sin(angle)
+#     return np.array([[cosa, -sina, 0], [sina, cosa, 0], [0,0,1]])
 
-# R_n = R(yaw_n, pitch_n, roll_n) R_{n - 1} R_{n - 2} ... R_1 R_0
-def get_rotation(rx, ry, rz):
-    rotation = rx.dot(ry).dot(rz)
-    # matrices.append(rotation.dot(last_matrix))
-    return rotation
+# # R_n = R(yaw_n, pitch_n, roll_n) R_{n - 1} R_{n - 2} ... R_1 R_0
+# def get_rotation(rx, ry, rz):
+#     rotation = rx.dot(ry).dot(rz)
+#     # matrices.append(rotation.dot(last_matrix))
+#     return rotation
 
 INPUT_WIDTH = 224
 INPUT_HEIGHT = 224
@@ -85,6 +86,7 @@ class RelativePoseDataset(Dataset):
         self._num_instances = self._images.shape[0]
         
         self._preprocess_fn = preprocess_fn
+        self.scene_id = '000000'
 
     def __len__(self):
         return self._num_instances
@@ -141,6 +143,22 @@ class RelativePoseDataset(Dataset):
             output_img = self._grayscale(output_img)
         return output_img, torch.tensor(relative_pose).float()
     
+    def dump(self, bop_path):
+        '''save data to bop format'''
+        self.bop_path = Path(bop_path)
+        scene_folder = self.bop_path / self.scene_id
+        self.create_model_json()
+        self.create_camera_json()
+        self.create_train()
+    
+    def create_train(self):
+        self.create_scene_camera()
+        self.create_scene_gt()
+        self.create_scene_gt_info()
+        self.save_rgb()
+    
+    def 
+    
 if __name__=="__main__":
     data_path = "/home/ubuntu/synthetic_pose_estimation/cosypose/local_data/bop_datasets/real_data/check_1"
     pose_ds = RelativePoseDataset(
@@ -151,5 +169,6 @@ if __name__=="__main__":
         # rotational_order=[1, 1, 1],
         # preprocess_fn=crop_numpy_image_to_torch,
     )
+    pose_ds.dump(bop_path='/home/ubuntu/synthetic_pose_estimation/cosypose/local_data/bop_datasets/real_data/')
     for data in pose_ds:
         print(data)

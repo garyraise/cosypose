@@ -57,7 +57,7 @@ def build_index(ds_dir, save_file, split, save_file_annotations):
 
 
 class BOPDataset:
-    def __init__(self, ds_dir, split='train', load_depth=False, train_classes=None, visib_fract_thres=0.5):
+    def __init__(self, ds_dir, split='train', load_depth=False, train_classes=None, visib_fract_thres=0.0):
         ds_dir = Path(ds_dir)
         self.ds_dir = ds_dir
         self.train_classes = train_classes

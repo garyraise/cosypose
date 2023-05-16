@@ -9,6 +9,8 @@ def parse_obs_data(obs):
     data = defaultdict(list)
     frame_info = obs['frame_info']
     TWC = torch.as_tensor(obs['camera']['TWC']).float()
+    if len(obs['objects'])==0:
+        return
     for n, obj in enumerate(obs['objects']):
         info = dict(frame_obj_id=n,
                     label=obj['name'],
@@ -24,6 +26,7 @@ def parse_obs_data(obs):
             data[k] = torch.stack([torch.as_tensor(x) .float()for x in v])
 
     data['infos'] = pd.DataFrame(data['infos'])
+    print("TWC.shape", TWC.shape, data['TWO'])
     TCO = invert_T(TWC).unsqueeze(0) @ torch.as_tensor(data['TWO'])
 
     data = tc.PandasTensorCollection(
