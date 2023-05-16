@@ -183,6 +183,9 @@ def make_cfg(args):
         if 'nut' in args.config:
             object_ds_name = object_ds_name + '_nut'
             train_ds_names = train_ds_names + '_nut'
+        if 'bolt' in args.config:
+            object_ds_name = object_ds_name + '_bolt'
+            train_ds_names = train_ds_names + '_bolt'
         if 'nosym' in args.config:
             object_ds_name = object_ds_name + '_nosym'
             train_ds_names = train_ds_names + '_nosym'

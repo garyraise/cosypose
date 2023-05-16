@@ -200,7 +200,11 @@ def make_object_dataset(ds_name):
     elif ds_name == 'tudl':
         ds = BOPObjectDataset(BOP_DS_DIR / 'tudl/models')
     elif 'bracket_assembly' in ds_name:
-        train_classes = ['5'] if 'nut' in ds_name else None
+        categroy_to_model = {
+            'bolt': '1',
+            'nut': '5',
+            }
+        # train_classes = ['5'] if 'nut' in ds_name else None
         ignore_symmetric = True if 'nosym' in ds_name else False
         ds_dir = BOP_DS_DIR / 'bracket_assembly'
         if 'debug' in ds_name:
@@ -208,10 +212,16 @@ def make_object_dataset(ds_name):
         if '04_22' in ds_name:
             ds_dir = BOP_DS_DIR / 'bracket_assembly_04_22'
         if '05_04' in ds_name:
+            categroy_to_model = {
+            'bolt': '1',
+            'nut': '4',
+            }
             ds_dir = BOP_DS_DIR / 'syn_fos_j_assembly_left_centered_05_04_2023_15_15'
-            train_classes = ['4'] if 'nut' in ds_name else None
+            # train_classes = ['4'] if 'nut' in ds_name else None
+        logger.info(f"categroy_to_model{categroy_to_model}")
+        train_classes = [v for k, v in categroy_to_model.items() if k in ds_name]
         object_ds_dir = ds_dir / 'models'
-        # print("train_classes", train_classes)
+        print("train_classes", train_classes)
         ds = BOPObjectDataset(object_ds_dir, mesh_units='m', 
                               ignore_symmetric=ignore_symmetric, 
                               train_classes=train_classes)

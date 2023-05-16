@@ -141,7 +141,11 @@ def load_posecnn_results():
 
 @MEMORY.cache
 def load_custom_detection_from_gt(ds_name='bracket_assembly'):
-    train_classes = ['5'] if 'nut' in ds_name else None
+    categroy_to_model = {
+            'bolt': '1',
+            'nut': '5',
+            }
+    # train_classes = ['5'] if 'nut' in ds_name else None
     debug = 'debug' in ds_name
     dataset_name = 'bracket_assembly'
     if 'debug' in ds_name:
@@ -149,8 +153,13 @@ def load_custom_detection_from_gt(ds_name='bracket_assembly'):
     if '04_22' in ds_name:
         dataset_name = 'bracket_assembly_04_22'
     if '05_04' in ds_name:
+        categroy_to_model = {
+            'bolt': '1',
+            'nut': '5',
+            }
         dataset_name = 'syn_fos_j_assembly_left_centered_05_04_2023_15_15'
-        train_classes = ['4'] if 'nut' in ds_name else None
+        # train_classes = ['4'] if 'nut' in ds_name else None
+    train_classes = [v for k, v in categroy_to_model.items() if k in ds_name]
     # print(dataset_name, train_classes)
     path_data_dir = LOCAL_DATA_DIR / 'bop_datasets' / dataset_name
     # print(path_data_dir)
