@@ -89,6 +89,44 @@ Single-view object-level reconstruction of a scene often fails because of detect
 We used our {coarse+refinement} single-view 6D pose estimation method in the [BOP challenge 2020](https://bop.felk.cvut.cz/challenges/bop-challenge-2020/). In addition, we trained a MaskRCNN detector (torchvision's implementation) on each of the 7 core datasets (LM-O, T-LESS, TUD-L, IC-BIN, ITODD, HB, YCB-V). We provide 2D detectors and 6D pose estimation models for these datasets. All training (including 2D detector), inference and evaluation code are available in this repository. It can be easily used for another dataset in the BOP format.
 
 # Installation
+Easy install
+
+```sh
+ssh-keygen -t ed25519 -C "yifei@raiserobotics.ai"
+cat ~/.ssh/id_ed25519.pub
+# add to github
+git clone --recurse-submodules https://github.com/Simple-Robotics/cosypose.git
+cp .bashrc ~/.bashrc
+
+sudo apt-get install python3.7.6
+conda env create -n cosypose python=3.7.6
+conda activate cosypose
+source activate ~/.bashrc
+
+cd cosypose
+python setup.py install
+cat environment2.yaml | xargs -n 1 pip install
+
+python3 -m pip install --upgrade pip
+
+cosypose
+mkdir local_data
+
+
+ssh-keygen
+cat ~/.ssh/id_rsa.pub
+vi ~/.ssh/authorized_keys
+
+scp -r ubuntu@ec2-3-91-189-180.compute-1.amazonaws.com:/home/ubuntu/synthetic_pose_estimation/cosypose/local_data/bop_datasets/bracket_assembly/models/ /home/ubuntu/synthetic_pose_estimation/cosypose/local_data/bop_datasets/bracket_assembly/models/
+scp -r ubuntu@ec2-3-91-189-180.compute-1.amazonaws.com:/home/ubuntu/synthetic_pose_estimation/cosypose/local_data/VOCdevkit/VOC2012 /home/ubuntu/synthetic_pose_estimation/cosypose/local_data/VOCdevkit/
+scp -r ubuntu@ec2-3-91-189-180.compute-1.amazonaws.com:~/synthetic_pose_estimation/cosypose/local_data/bop_datasets/syn_fos_j_assembly_left_centered_05_04_2023_15_15 ~/synthetic_pose_estimation/cosypose/local_data/bop_datasets/
+
+
+mkdir experiments
+python -m cosypose.scripts.convert_models_to_urdf --models=bracket_assembly
+
+python3 -m cosypose.scripts.run_pose_training --config bracket_assembly_nosym_noaug_coarse --no-eval
+```
 
 ```sh
 git clone --recurse-submodules https://github.com/Simple-Robotics/cosypose.git

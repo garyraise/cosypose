@@ -157,7 +157,7 @@ class RelativePoseDataset(Dataset):
         self.create_scene_gt_info()
         self.save_rgb()
     
-    def 
+    # def 
     
 if __name__=="__main__":
     data_path = "/home/ubuntu/synthetic_pose_estimation/cosypose/local_data/bop_datasets/real_data/check_1"
