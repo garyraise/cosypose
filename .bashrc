@@ -134,5 +134,7 @@ alias cosypose="cd /home/ubuntu/synthetic_pose_estimation/cosypose"
 alias data="cd /home/ubuntu/synthetic_pose_estimation/cosypose/local_data"
 alias trainpose="python -m cosypose.scripts.run_pose_training --config bracket_assembly_05_04_nut_nosym_noaug_coarse --no-eval"
 alias poseeval="python -m cosypose.scripts.run_cosypose_eval --config bracket_assembly_nut_05_04_nosym_noaug"
+alias clearcache="rm -r /home/ubuntu/synthetic_pose_estimation/cosypose/local_data/joblib_cache/*"
+alias killwandb="pkill -f wandb"
 CUDA_VISIBLE_DEVICES=0
 conda activate cosypose
