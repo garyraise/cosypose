@@ -114,7 +114,7 @@ def run_detection_eval(args, detector=None):
             pass
 
     for pred_prefix, pred_kwargs_n in pred_kwargs.items():
-        logger.info(f"Prediction: {pred_prefix}")
+        logger.info(f"Predicgtion: {pred_prefix}")
         preds = pred_runner.get_predictions(**pred_kwargs_n)
         for preds_name, preds_n in preds.items():
             all_predictions[f'{pred_prefix}/{preds_name}'] = preds_n

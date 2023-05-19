@@ -96,7 +96,7 @@ class BOPDataset:
             self.annotations = annotations_debug
             self.frame_index = frame_df_debug
         self.visib_fract_thres = visib_fract_thres
-        if train_classes is not None:
+        if train_classes:
             self.all_labels = [f'obj_{int(obj_id):06d}' for obj_id in models_infos.keys() if str(obj_id) in train_classes]
         else:
             self.all_labels = [f'obj_{int(obj_id):06d}' for obj_id in models_infos.keys()]

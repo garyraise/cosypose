@@ -135,7 +135,7 @@ def make_scene_dataset(ds_name, n_frames=None):
             'bolt': '1',
             'nut': '5',
         }
-        visib_fract = 0.5
+        visib_fract = 0.0
         ds_dir = BOP_DS_DIR / 'bracket_assembly'
         if 'debug' in ds_name:
             ds_dir = BOP_DS_DIR / 'bracket_assembly_debug'

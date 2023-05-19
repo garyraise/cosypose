@@ -105,6 +105,9 @@ if __name__ == '__main__':
     elif args.config == 'bracket_assembly':
         from cosypose.bop_config import BOP_CONFIG
         from cosypose.bop_config import PBR_DETECTORS
+        # bop_cfg = BOP_CONFIG["bracket_assembly"]
+        # train_ds_names = bop_cfg['train_pbr_ds_name'][0]
+
         bop_cfg = BOP_CONFIG[args.config]
         cfg.train_ds_names = [(bop_cfg['train_pbr_ds_name'][0], 1)]
         cfg.val_ds_names = cfg.train_ds_names

@@ -87,21 +87,6 @@ def loss_refiner_CO_disentangled(TCO_possible_gt,
     loss_orn, _, TCO_points_possible_gt_orn, TCO_pred_points_orn = loss_CO_symmetric(TCO_possible_gt, TCO_pred_orn, points, l1_or_l2=l1)
     loss_xy, _, TCO_points_possible_gt_xy, TCO_pred_points_xy = loss_CO_symmetric(TCO_possible_gt, TCO_pred_xy, points, l1_or_l2=l1)
     loss_z, _ , TCO_points_possible_gt_z, TCO_pred_points_z = loss_CO_symmetric(TCO_possible_gt, TCO_pred_z, points, l1_or_l2=l1)
-    # images = wandb.Image(
-    # image_array, 
-    # caption="Top: Output, Bottom: Input"
-    # )       
-    # wandb.log({"examples": images})
-          
-    # points_debug_file_path = DEBUG_DATA_DIR / f'debug_points_{EPOCH}_{iter}.npz'
-    # np.savez(points_debug_file_path, points=points.detach().cpu(), 
-    #          TCO_points_possible_gt_orn=TCO_points_possible_gt_orn.detach().cpu(),
-    #          TCO_pred_points_orn=TCO_pred_points_orn.detach().cpu(),
-    #          TCO_points_possible_gt_xy=TCO_points_possible_gt_xy.detach().cpu(),
-    #          TCO_pred_points_xy=TCO_pred_points_xy.detach().cpu(),
-    #          TCO_points_possible_gt_z=TCO_points_possible_gt_z.detach().cpu(),
-    #          TCO_pred_points_z=TCO_pred_points_z.detach().cpu())
-    # print(f'debug_points_{EPOCH}_{_iteration}.npz at {points_debug_file_path}')
     log_dict = {"TCO_pred_orn": TCO_pred_orn,
                 "TCO_pred_xy": TCO_pred_xy,
                 "TCO_pred_z": TCO_pred_z,

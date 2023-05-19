@@ -253,6 +253,9 @@ def train_detector(args):
                 optimizer.zero_grad()
 
                 t = time.time()
+                if len(sample) != 2:
+                    print("len(sample)", len(sample))
+                    continue
                 loss = h(data=sample, meters=meters_train)
                 meters_time['forward'].add(time.time() - t)
                 iterator.set_postfix(loss=loss.item())
