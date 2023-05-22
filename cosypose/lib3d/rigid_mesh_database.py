@@ -53,7 +53,7 @@ class MeshDataBase:
         labels = np.array(labels)
         points = pad_stack_tensors(points, fill='select_random', deterministic=True)
         symmetries = pad_stack_tensors(symmetries, fill=torch.eye(4), deterministic=True)
-        logger.info(f"symmetries {symmetries}")
+        logger.debug(f"symmetries {symmetries}")
         return BatchedMeshes(new_infos, labels, points, symmetries).float()
 
 

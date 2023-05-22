@@ -17,6 +17,7 @@ def apply_imagespace_predictions(TCO, K, vxvyvz, dRCO):
     assert K.shape[-2:] == (3, 3)
     assert dRCO.shape[-2:] == (3, 3)
     assert vxvyvz.shape[-1] == 3
+    # TCO = TCO.to(vxvyvz.device)
     TCO_out = TCO.clone()
 
     # Translation in image space

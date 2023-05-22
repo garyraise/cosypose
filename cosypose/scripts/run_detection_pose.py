@@ -21,23 +21,34 @@ def get_prediction(data, detector_model, pose_model=None):
     # TODO
     # img check shape
     img = torch.unsqueeze(img, 0)
-    img = img.cuda().float().permute(0, 3, 2, 1) / 255
+    img = img.cuda().float() / 255
     print("img", img.shape)
     bracket_detections = detector_model.get_detections(
                     images=img,
                     one_instance_per_class=False,
                 )
+    # .permute(0, 3, 2, 1)
     bracket_detections = tc.concatenate(bracket_detections)
     # pred_kwargs = {
     #         'pix2pose_detections': dict(
     #             detections=bracket_detections
     #         )
     # }
-    start_x, start_y = randint(0,img.shape[2]), randint(0,img.shape[3])
-    end_x, end_y = randint(start_x,img.shape[2]), randint(start_y,img.shape[3])
-    
+    list_bbox, infos = [], []
+    for i in range(2):
+        start_x, start_y = randint(0,img.shape[1]), randint(0, img.shape[2])
+        end_x, end_y = randint(start_x, img.shape[2]), randint(start_y,img.shape[2])
+        list_bbox.append([start_x, start_y, end_x, end_y])
+        info = dict(frame_obj_id=i,
+                    label='obj_000004',
+                    visib_fract=1,
+                    scene_id='000000',
+                    view_id='0',
+                    batch_im_id=0)
+        infos.append(info)
     bracket_detections = tc.PandasTensorCollection(
-        bboxes=torch.as_tensor(np.stack(
+        infos=pd.DataFrame(infos),
+        bboxes=torch.as_tensor(np.stack(list_bbox)).float().cuda()
     )
     camera_json = {
                 "cx": 377.614210,
@@ -57,9 +68,9 @@ def get_prediction(data, detector_model, pose_model=None):
             0,
             0,
             1]).reshape([3,3])
-    
+    cam_K = torch.as_tensor(np.expand_dims(cam_K, 0)).cuda()
     candidates, sv_preds = pose_model.get_predictions(
-                img, cam_K, detections=bracket_detections,
+                img, K=cam_K, detections=bracket_detections,
                 n_coarse_iterations=1,
                 data_TCO_init=None,
                 n_refiner_iterations=0,
