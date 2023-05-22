@@ -1,6 +1,6 @@
 from cosypose.config import DEBUG_DATA_DIR
 import torch
-
+import wandb
 def cast(obj):
     return obj.cuda(non_blocking=True)
 
@@ -9,7 +9,7 @@ def h_maskrcnn(data, model, meters, cfg):
     images, targets = data
     images = list(cast(image).permute(2, 0, 1).float() / 255 for image in images)
     targets = [{k: cast(v) for k, v in t.items()} for t in targets]
-
+    
     loss_dict = model(images, targets)
 
     loss_rpn_box_reg = loss_dict['loss_rpn_box_reg']
@@ -31,4 +31,11 @@ def h_maskrcnn(data, model, meters, cfg):
     meters['loss_box_reg'].add(loss_box_reg.item())
     meters['loss_classifier'].add(loss_classifier.item())
     meters['loss_mask'].add(loss_mask.item())
+    wandb.log({
+        'loss_rpn_box_reg': torch.sum(loss_rpn_box_reg) / wandb.config.batch_size,
+        'loss_objectness': torch.sum(loss_objectness) / wandb.config.batch_size,
+        'loss_box_reg': torch.sum(loss_box_reg) / wandb.config.batch_size,
+        'loss_classifier': torch.sum(loss_classifier) / wandb.config.batch_size,
+        'loss_mask': torch.sum(loss_mask) / wandb.config.batch_size,
+    })
     return loss

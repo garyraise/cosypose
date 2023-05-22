@@ -388,6 +388,7 @@ def load_models(coarse_run_id, refiner_run_id=None, n_workers=8, object_set='tle
     mesh_db_batched = mesh_db.batched().cuda()
 
     def load_model(run_id):
+        DEBUG = False
         if run_id is None:
             return
         run_dir = EXP_DIR / run_id

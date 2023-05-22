@@ -18,6 +18,8 @@ if __name__ == '__main__':
 
     cfg = argparse.ArgumentParser('').parse_args([])
     if args.config:
+        cfg.config = args.config
+        print("cfg.config", cfg.config)
         logger.info(f"{Fore.GREEN}Training with config: {args.config} {Style.RESET_ALL}")
 
     cfg.resume_run_id = None
@@ -55,7 +57,7 @@ if __name__ == '__main__':
     cfg.pretrain_coco = True
 
     # Training
-    cfg.batch_size = 1
+    cfg.batch_size = 8
     cfg.epoch_size = 5000
     cfg.n_epochs = 600
     cfg.lr_epoch_decay = 200
@@ -64,7 +66,7 @@ if __name__ == '__main__':
 
     # Optimizer
     cfg.optimizer = 'sgd'
-    cfg.lr = (0.02 / 8) * N_GPUS * float(cfg.batch_size / 4)
+    cfg.lr = (4e-4 / 8) * N_GPUS * float(cfg.batch_size / 4) # 0.02
     cfg.weight_decay = 1e-4
     cfg.momentum = 0.9
 
@@ -81,7 +83,7 @@ if __name__ == '__main__':
         cfg.input_resize = (480, 640)
     elif 'bop-' in args.config:
         cfg.input_resize = None
-    elif args.config == 'bracket_assembly':
+    elif 'bracket_assembly' in args.config:
         cfg.input_resize = (480, 640)
     else:
         raise ValueError
@@ -102,14 +104,23 @@ if __name__ == '__main__':
         cfg.input_resize = bop_cfg['input_resize']
         if len(bop_cfg['test_ds_name']) > 0:
             cfg.test_ds_names = bop_cfg['test_ds_name']
-    elif args.config == 'bracket_assembly':
+    elif 'bracket_assembly' in args.config:
         from cosypose.bop_config import BOP_CONFIG
         from cosypose.bop_config import PBR_DETECTORS
-        # bop_cfg = BOP_CONFIG["bracket_assembly"]
-        # train_ds_names = bop_cfg['train_pbr_ds_name'][0]
+        bop_cfg = BOP_CONFIG["bracket_assembly"]
+        train_ds_names = bop_cfg['train_pbr_ds_name'][0]
+        if 'debug' in args.config:
+            train_ds_names = train_ds_names + '_debug'
+        if 'nut' in args.config:
+            train_ds_names = train_ds_names + '_nut'
+        if 'bolt' in args.config:
+            train_ds_names = train_ds_names + '_bolt'
+        if 'nosym' in args.config:
+            train_ds_names = train_ds_names + '_nosym'
+        if '05_04' in args.config:
+            train_ds_names = train_ds_names + '_05_04'
 
-        bop_cfg = BOP_CONFIG[args.config]
-        cfg.train_ds_names = [(bop_cfg['train_pbr_ds_name'][0], 1)]
+        cfg.train_ds_names = [(train_ds_names, 1)]
         cfg.val_ds_names = cfg.train_ds_names
         cfg.input_resize = bop_cfg['input_resize']
         if len(bop_cfg['test_ds_name']) > 0:
@@ -117,6 +128,7 @@ if __name__ == '__main__':
     else:
         raise ValueError(args.config)
     cfg.val_ds_names = cfg.train_ds_names
+    print("cfg.train_ds_names", cfg.train_ds_names)
 
     if args.no_eval:
         cfg.test_ds_names = []

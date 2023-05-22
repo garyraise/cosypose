@@ -193,16 +193,14 @@ def make_cfg(args):
             cfg.rgb_augmentation=False
             cfg.background_augmentation=False
             cfg.gray_augmentation=False
-        cfg.train_ds_names = [(train_ds_names, 1)]
-       
+            
         if '04_22' in args.config:
             object_ds_name = object_ds_name + '_04_22'
             train_ds_names = train_ds_names + '_04_22'
-            cfg.train_ds_names.append((train_ds_names, 1))
         if '05_04' in args.config:
             object_ds_name = object_ds_name + '_05_04'
             train_ds_names = train_ds_names + '_05_04'
-            cfg.train_ds_names = [(train_ds_names, 1)]
+        cfg.train_ds_names = [(train_ds_names, 1)]
         cfg.object_ds_name = object_ds_name
 
         print("cfg.train_ds_names", cfg.train_ds_names)

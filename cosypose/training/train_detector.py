@@ -3,6 +3,7 @@ import argparse
 import numpy as np
 import time
 import torch
+import wandb
 import simplejson as json
 from tqdm import tqdm
 import functools
@@ -234,7 +235,10 @@ def train_detector(args):
     )
     lr_scheduler.last_epoch = start_epoch - 1
     lr_scheduler.step()
-
+    wandb.init(
+            project=args.config,
+            config=vars(args)
+    )
     for epoch in range(start_epoch, end_epoch):
         meters_train = defaultdict(AverageValueMeter)
         meters_val = defaultdict(AverageValueMeter)
@@ -260,7 +264,9 @@ def train_detector(args):
                 meters_time['forward'].add(time.time() - t)
                 iterator.set_postfix(loss=loss.item())
                 meters_train['loss_total'].add(loss.item())
-
+                wandb.log({
+                    "loss_total": torch.sum(loss) / args.batch_size
+                        })
                 t = time.time()
                 loss.backward()
                 total_grad_norm = torch.nn.utils.clip_grad_norm_(
