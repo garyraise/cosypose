@@ -136,5 +136,5 @@ alias trainpose="python -m cosypose.scripts.run_pose_training --config bracket_a
 alias poseeval="python -m cosypose.scripts.run_cosypose_eval --config bracket_assembly_nut_05_04_nosym_noaug"
 alias clearcache="rm -r /home/ubuntu/synthetic_pose_estimation/cosypose/local_data/joblib_cache/*"
 alias killwandb="pkill -f wandb"
-CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=0
 conda activate cosypose
