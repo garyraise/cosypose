@@ -128,6 +128,11 @@ python -m cosypose.scripts.convert_models_to_urdf --models=bracket_assembly
 python3 -m cosypose.scripts.run_pose_training --config bracket_assembly_nosym_noaug_coarse --no-eval
 ```
 
+Visualization update
+the Jinja 2 wont work with Markup. See https://itsourcecode.com/python-tutorial/cannot-import-name-markup-from-jinja2-solved/?utm_content=expand_article.
+So we maually change the ```from jinja2 import Markup``` to ```from jinja2.utils import markupsafe; markupsafe.Markup(); _env.filters['json'] = lambda obj: Markup(json.dumps(obj))```
+in ```/home/ubuntu/anaconda3/envs/cosypose/lib/python3.7/site-packages/bokeh/core/templates.py```
+
 ```sh
 git clone --recurse-submodules https://github.com/Simple-Robotics/cosypose.git
 cd cosypose
