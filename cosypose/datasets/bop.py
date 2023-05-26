@@ -57,7 +57,8 @@ def build_index(ds_dir, save_file, split, save_file_annotations):
 
 
 class BOPDataset:
-    def __init__(self, ds_dir, split='train', load_depth=False, train_classes=None, visib_fract_thres=0.0):
+    def __init__(self, ds_dir, split='train', load_depth=False, train_classes=None, 
+                 visib_fract_thres=0.0, frames_debug=[]):
         ds_dir = Path(ds_dir)
         self.ds_dir = ds_dir
         self.train_classes = train_classes
@@ -78,21 +79,22 @@ class BOPDataset:
         # TODO
         models_infos = json.loads((ds_dir / 'models' / 'models_info.json').read_text())
         # filter detection model, only load frames_debug
-        if 'debug' in str(ds_dir):
-            frames_debug = [('000000', '62')]
+        if frames_debug:
+            frames_debug = [('000000',str(frame_idx)) for frame_idx in frames_debug]
+            # frames_debug = [('000000', '62')]
             annotations_debug = {}
             frame_df_debug = pd.DataFrame()
-            for scene_index, t_index in frames_debug:
+            for scene_index, frame_index in frames_debug:
                 frame_df_debug = frame_df_debug.append(
                     self.frame_index.loc[
                         (self.frame_index['scene_id']==int(scene_index))
-                            & (self.frame_index['view_id']==int(t_index))
+                            & (self.frame_index['view_id']==int(frame_index))
                         ]
                         )
                 annotations_debug[scene_index] = annotations_debug.get(scene_index, {})
                 for key, value_dict in self.annotations[scene_index].items():                
                     annotations_debug[scene_index][key] = annotations_debug[scene_index].get(key, {})
-                    annotations_debug[scene_index][key][t_index] = value_dict[t_index]
+                    annotations_debug[scene_index][key][frame_index] = value_dict[frame_index]
             self.annotations = annotations_debug
             self.frame_index = frame_df_debug
         self.visib_fract_thres = visib_fract_thres

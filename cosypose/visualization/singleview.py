@@ -1,6 +1,6 @@
 import numpy as np
 
-from cosypose.visualization.plotter import Plotter
+# from cosypose.visualization.plotter import Plotter
 
 import cv2
 import os
@@ -32,8 +32,9 @@ def filter_predictions(preds, scene_id, view_id=None, th=None):
 
 
 def render_prediction_wrt_camera(renderer, pred, camera=None, resolution=(640, 480)):
-    pred = pred.cpu()
-    camera.update(TWC=np.eye(4))
+    if pred.device.type == 'cuda':
+        pred = pred.cpu()
+    # camera.update(TWC=np.eye(4))
 
     list_objects = []
     for n in range(len(pred)):
@@ -125,7 +126,8 @@ if __name__ == '__main__':
     #baseline
     # viz = VisualizeSingleView('bracket_assembly', 'bracket_assembly-n_views=1--3211443897')
     #
-    viz = VisualizeSingleView('bracket_assembly_nut', 'bracket_assembly_nut-n_views=1--684291998')
+    ds_name = 'bracket_assembly_05_04_nut_bolt'
+    viz = VisualizeSingleView(ds_name, 'bracket_assembly_nut_nosym_debug-n_views=1--545746054')
     import random
     #Generate 5 random numbers between 10 and 30
     random.seed(0)

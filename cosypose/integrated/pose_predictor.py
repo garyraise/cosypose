@@ -49,7 +49,6 @@ class CoarseRefinePosePredictor(torch.nn.Module):
             timer.pause()
             for n in range(1, n_iterations+1):
                 iter_outputs = outputs[f'iteration={n}']
-
                 infos = obj_inputs.infos
                 batch_preds = tc.PandasTensorCollection(infos,
                                                         poses=iter_outputs['TCO_output'],

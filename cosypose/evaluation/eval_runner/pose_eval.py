@@ -55,6 +55,8 @@ class PoseEvaluation:
             _, _, obs = data_n
             obj_data_ = parse_obs_data(obs)
             obj_data.append(obj_data_)
+        obj_data = filter (lambda x: x is not None, obj_data)
+
         obj_data = tc.concatenate(obj_data)
         return obj_data
 

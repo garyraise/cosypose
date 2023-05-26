@@ -131,29 +131,27 @@ def make_scene_dataset(ds_name, n_frames=None):
         ds_dir = BOP_DS_DIR / 'tudl'
         ds = BOPDataset(ds_dir, split='train_real')
     elif 'bracket_assembly' in ds_name:
-        categroy_to_model = {
+        category_to_model = {
             'bolt': '1',
-            'nut': '5',
+            'nut': '4',
         }
         visib_fract = 0.0
+        
+        frames_debug = [i for i in range(10)] if 'debug' in ds_name else []
         ds_dir = BOP_DS_DIR / 'bracket_assembly'
-        if 'debug' in ds_name:
-            ds_dir = BOP_DS_DIR / 'bracket_assembly_debug'
-        # train_classes = ['5'] if 'nut' in ds_name else None
         if '04_22' in ds_name:
             ds_dir = BOP_DS_DIR / 'bracket_assembly_04_22'
         if '05_04' in ds_name:
-            categroy_to_model = {
+            category_to_model = {
             'bolt': '1',
-            'nut': '4',
+            'nut': '5',
             }
             ds_dir = BOP_DS_DIR / 'syn_fos_j_assembly_left_centered_05_04_2023_15_15'
-            # train_classes = ['4'] if 'nut' in ds_name else None
          
-        train_classes = [v for k, v in categroy_to_model.items() if k in ds_name]
+        train_classes = [v for k, v in category_to_model.items() if k in ds_name]
         logger.info(f"ds_dir {ds_dir}")
         logger.info(f"train_classes {train_classes}")
-        ds = BOPDataset(ds_dir, split='train_pbr', train_classes=train_classes, visib_fract_thres=visib_fract)
+        ds = BOPDataset(ds_dir, split='train_pbr', train_classes=train_classes, visib_fract_thres=visib_fract, frames_debug=frames_debug)
     # Synthetic datasets
     elif 'synthetic.' in ds_name:
         from .synthetic_dataset import SyntheticSceneDataset
@@ -200,9 +198,9 @@ def make_object_dataset(ds_name):
     elif ds_name == 'tudl':
         ds = BOPObjectDataset(BOP_DS_DIR / 'tudl/models')
     elif 'bracket_assembly' in ds_name:
-        categroy_to_model = {
+        category_to_model = {
             'bolt': '1',
-            'nut': '5',
+            'nut': '4',
             }
         # train_classes = ['5'] if 'nut' in ds_name else None
         ignore_symmetric = True if 'nosym' in ds_name else False
@@ -212,14 +210,14 @@ def make_object_dataset(ds_name):
         if '04_22' in ds_name:
             ds_dir = BOP_DS_DIR / 'bracket_assembly_04_22'
         if '05_04' in ds_name:
-            categroy_to_model = {
+            category_to_model = {
             'bolt': '1',
-            'nut': '4',
+            'nut': '5',
             }
             ds_dir = BOP_DS_DIR / 'syn_fos_j_assembly_left_centered_05_04_2023_15_15'
             # train_classes = ['4'] if 'nut' in ds_name else None
-        logger.info(f"categroy_to_model{categroy_to_model}")
-        train_classes = [v for k, v in categroy_to_model.items() if k in ds_name]
+        logger.info(f"category_to_model{category_to_model}")
+        train_classes = [v for k, v in category_to_model.items() if k in ds_name]
         object_ds_dir = ds_dir / 'models'
         print("train_classes", train_classes)
         ds = BOPObjectDataset(object_ds_dir, mesh_units='m', 

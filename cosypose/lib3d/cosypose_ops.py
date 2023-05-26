@@ -85,9 +85,9 @@ def loss_refiner_CO_disentangled(TCO_possible_gt,
     TCO_pred_z = TCO_gt.clone()
     vz = vxvyvz[:, [2]]
     TCO_pred_z[:, [2], [3]] = vz * z_input
-    loss_orn, _, TCO_points_possible_gt_orn, TCO_pred_points_orn = loss_CO_symmetric(TCO_possible_gt, TCO_pred_orn, points, l1_or_l2=l1)
-    loss_xy, _, TCO_points_possible_gt_xy, TCO_pred_points_xy = loss_CO_symmetric(TCO_possible_gt, TCO_pred_xy, points, l1_or_l2=l1)
-    loss_z, _ , TCO_points_possible_gt_z, TCO_pred_points_z = loss_CO_symmetric(TCO_possible_gt, TCO_pred_z, points, l1_or_l2=l1)
+    loss_orn, _, _, _ = loss_CO_symmetric(TCO_possible_gt, TCO_pred_orn, points, l1_or_l2=l1)
+    loss_xy, _, _, _ = loss_CO_symmetric(TCO_possible_gt, TCO_pred_xy, points, l1_or_l2=l1)
+    loss_z, _ , _, _ = loss_CO_symmetric(TCO_possible_gt, TCO_pred_z, points, l1_or_l2=l1)
     log_dict = {"TCO_pred_orn": TCO_pred_orn,
                 "TCO_pred_xy": TCO_pred_xy,
                 "TCO_pred_z": TCO_pred_z,

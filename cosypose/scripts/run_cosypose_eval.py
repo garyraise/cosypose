@@ -141,25 +141,23 @@ def load_posecnn_results():
 
 @MEMORY.cache
 def load_custom_detection_from_gt(ds_name='bracket_assembly'):
-    categroy_to_model = {
+    category_to_model = {
             'bolt': '1',
-            'nut': '5',
+            'nut': '4',
             }
     # train_classes = ['5'] if 'nut' in ds_name else None
     debug = 'debug' in ds_name
     dataset_name = 'bracket_assembly'
-    if 'debug' in ds_name:
-        dataset_name = 'bracket_assembly_debug'
     if '04_22' in ds_name:
         dataset_name = 'bracket_assembly_04_22'
     if '05_04' in ds_name:
-        categroy_to_model = {
+        category_to_model = {
             'bolt': '1',
             'nut': '5',
             }
         dataset_name = 'syn_fos_j_assembly_left_centered_05_04_2023_15_15'
         # train_classes = ['4'] if 'nut' in ds_name else None
-    train_classes = [v for k, v in categroy_to_model.items() if k in ds_name]
+    train_classes = [v for k, v in category_to_model.items() if k in ds_name]
     # print(dataset_name, train_classes)
     path_data_dir = LOCAL_DATA_DIR / 'bop_datasets' / dataset_name
     # print(path_data_dir)
@@ -178,6 +176,8 @@ def load_custom_detection_from_gt(ds_name='bracket_assembly'):
             json_gt_camera = json.load(f)
         img_names_rgb = os.listdir(os.path.join(path_scene_dir, scene_name, "rgb"))
         for img_id, img_name in enumerate(img_names_rgb[:-1]):
+            if 'debug' in ds_name and img_id >= 10:
+                break
             if not f"{img_id}" in json_data_gt_info:
                 continue
             if not f"{img_id}" in json_data_gt:
@@ -188,7 +188,7 @@ def load_custom_detection_from_gt(ds_name='bracket_assembly'):
             cam_t_w2c = json_gt_camera[f"{img_id}"]["cam_t_w2c"]
             row0 = [cam_R_w2c[0], cam_R_w2c[1], cam_R_w2c[2], cam_t_w2c[0]] 
             row1 = [cam_R_w2c[3], cam_R_w2c[4], cam_R_w2c[5], cam_t_w2c[1]]
-            row2 = [cam_R_w2c[6], cam_R_w2c[7], cam_R_w2c[8], cam_t_w2c[2]]           
+            row2 = [cam_R_w2c[6], cam_R_w2c[7], cam_R_w2c[8], cam_t_w2c[2]]    
             row3 = [0, 0, 0, 1]
             cam_rot_loc_mat = np.asarray([row0, row1, row2, row3])
             # TODO: ADD no_sym / single_cat option for inference
@@ -321,18 +321,7 @@ def get_pose_meters(scene_ds):
 
     error_types = ['ADD-S'] + (['ADD(-S)'] if compute_add else [])
 
-    # base_kwargs = dict(
-    #     mesh_db=mesh_db,
-    #     exact_meshes=True,
-    #     sample_n_points=None,
-    #     errors_bsz=1,
 
-    #     # BOP-Like parameters
-    #     n_top=n_top,
-    #     visib_gt_min=visib_gt_min,
-    #     targets=targets,
-    #     spheres_overlap_check=spheres_overlap_check,
-    # )
     # sample less points
     base_kwargs = dict(
         mesh_db=mesh_db,
@@ -412,7 +401,6 @@ def load_models(coarse_run_id, refiner_run_id=None, n_workers=8, object_set='tle
     refiner_model = load_model(refiner_run_id)
     model = CoarseRefinePosePredictor(coarse_model=coarse_model,
                                       refiner_model=refiner_model)
-    # print("mesh_db",object_ds, mesh_db)
     return model, mesh_db
 
 
@@ -475,12 +463,13 @@ def main():
         # coarse_run_id = 'bracket_assembly_coarse--206480'
         # refiner_run_id = 'bracket_assembly_coarse--206480'
         # 05_04
-        coarse_run_id = 'bracket_assembly_nut_05_04_nosym_noaug_coarse--246643'
-        refiner_run_id = 'bracket_assembly_nut_05_04_nosym_noaug_refiner--806506'
-        # single frame sym nut
-        
+        # coarse_run_id = 'bracket_assembly_nut_05_04_nosym_noaug_coarse--246643'
+        # refiner_run_id = 'bracket_assembly_nut_05_04_nosym_noaug_refiner--806506'
+        # nut & bolt
+        coarse_run_id = 'bracket_assembly_nut_bolt_05_04_nosym_noaug_coarse--302621'
+        refiner_run_id = None
         n_coarse_iterations = 1
-        n_refiner_iterations = 2
+        n_refiner_iterations = 0
     else:
         raise ValueError(args.config)
 
@@ -519,7 +508,8 @@ def main():
 
     # Load dataset
     scene_ds = make_scene_dataset(ds_name)
-
+    if 'debug' in args.config:
+        frame_ids = [i for i in range(10)]
     if scene_id is not None:
         mask = scene_ds.frame_index['scene_id'] == scene_id
         scene_ds.frame_index = scene_ds.frame_index[mask].reset_index(drop=True)
@@ -623,6 +613,17 @@ def main():
     eval_runner = PoseEvaluation(scene_ds, meters, n_workers=n_workers,
                                  cache_data=True, batch_size=1, sampler=sampler)
 
+    all_predictions = gather_predictions(all_predictions)
+
+    results = dict(
+        predictions=all_predictions
+    )
+    if get_rank() == 0:
+        save_dir.mkdir()
+        torch.save(results, save_dir / 'results.pth.tar')
+        print("Saved")
+        exit()
+   
     eval_metrics, eval_dfs = dict(), dict()
     for preds_k, preds in all_predictions.items():
         if preds_k in predictions_to_evaluate:
@@ -634,7 +635,16 @@ def main():
         else:
             logger.info(f"Skipped: {preds_k} (N={len(preds)})")
 
-    all_predictions = gather_predictions(all_predictions)
+    # all_predictions = gather_predictions(all_predictions)
+
+    # results = dict(
+    #     predictions=all_predictions
+    # )
+    # if get_rank() == 0:
+    #     save_dir.mkdir()
+    #     torch.save(results, save_dir / 'results.pth.tar')
+    #     print("Saved")
+    #     exit()
 
     metrics_to_print = dict()
     if 'ycbv' in ds_name:

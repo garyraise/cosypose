@@ -90,6 +90,16 @@ class RelativePoseDataset(Dataset):
         
         self._preprocess_fn = preprocess_fn
         self.scene_id = '000000'
+        self.create_camera_json()
+        self.cam_K = np.asarray([self.camera_json['fx'],
+                          0,
+                          self.camera_json['cx'],
+                          0,
+                          self.camera_json['fy'],
+                          self.camera_json['cy'],
+                          0,
+                          0,
+                          1]).reshape((3,3))
 
     def __len__(self):
         return self._num_instances
@@ -146,7 +156,7 @@ class RelativePoseDataset(Dataset):
         relative_pose[:3] = relative_transform[:3, 3]
         if self._grayscale is not None:
             output_img = self._grayscale(output_img)
-        return output_img, torch.tensor(relative_pose).float(), camera_orientation, camera_position
+        return output_img, torch.tensor(relative_pose).float(),  camera_orientation, camera_position, camera_transform, relative_transform, target_transform
     
     def dump(self, bop_path):
         '''save data to bop format'''
@@ -158,7 +168,6 @@ class RelativePoseDataset(Dataset):
         self.scene_path = self.trainpbr_path / self.scene_id
         # just copy from other folder for now. Part dimension and symmetries
         # self.create_model_info()
-        # self.create_camera_json()
         # self.create_trainpbr()
 
 
@@ -176,15 +185,16 @@ class RelativePoseDataset(Dataset):
                 "height": 540,
                 "width": 720
             }
-        camera_json_path = self.dataset_path / 'camera.json'
-        with open(camera_json_path, "w+") as f:
-            json.dump(self.camera_json, f)
+        # camera_json_path = self.dataset_path / 'camera.json'
+        # with open(camera_json_path, "w+") as f:
+        #     json.dump(self.camera_json, f)
         
     def create_scene_hierarcy(self):
         scene_depth_path = self.scene_path / 'depth'
         scene_depth_path = self.scene_path / 'depth'
         if not os.path.exists(self.scene_path):
             os.makedirs(self.scene_path)
+
     def create_trainpbr(self):
         if not os.path.exists(self.trainpbr_path):
             os.makedirs(self.trainpbr_path)
@@ -254,10 +264,10 @@ if __name__=="__main__":
         h5_filename=data_path,
         rotation_type=RotationType.EULER,
         grayscale=False,
-        # load_to_memory=True,
-        # rotational_order=[1, 1, 1],
-        # preprocess_fn=crop_numpy_image_to_torch,
+        load_to_memory=True,
+        rotational_order=[1, 1, 1],
+        preprocess_fn=crop_numpy_image_to_torch
     )
-    pose_ds.dump(bop_path='/home/ubuntu/synthetic_pose_estimation/cosypose/local_data/bop_datasets/')
+    # pose_ds.dump(bop_path='/home/ubuntu/synthetic_pose_estimation/cosypose/local_data/bop_datasets/')
     for data in pose_ds:
         print(data)

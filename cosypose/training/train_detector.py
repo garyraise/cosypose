@@ -85,7 +85,7 @@ def log(config, model,
         (save_dir / 'config.yaml').write_text(yaml.dump(config))
 
     def save_checkpoint(model):
-        ckpt_name = 'checkpoint'
+        ckpt_name = f'checkpoint_{epoch}'
         ckpt_name += '.pth.tar'
         path = save_dir / ckpt_name
         torch.save({'state_dict': model.module.state_dict(),

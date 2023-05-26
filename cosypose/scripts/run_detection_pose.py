@@ -17,7 +17,8 @@ from cosypose.integrated.multiview_predictor import MultiviewScenePredictor
 
 
 def get_prediction(data, detector_model, pose_model=None):
-    img, nut_to_camera, cam_R, cam_t = data
+    # img, nut_to_camera, cam_R, cam_R = data
+    img, relative_pose, camera_orientation, cam_R, cam_R, relative_transform, target_transform = data
     # TODO
     # img check shape
     img = torch.unsqueeze(img, 0)
@@ -27,29 +28,30 @@ def get_prediction(data, detector_model, pose_model=None):
                     images=img,
                     one_instance_per_class=False,
                 )
-    # .permute(0, 3, 2, 1)
-    bracket_detections = tc.concatenate(bracket_detections)
+    bracket_detections = 
+    # bracket_detections = tc.concatenate(bracket_detections)
     # pred_kwargs = {
     #         'pix2pose_detections': dict(
     #             detections=bracket_detections
     #         )
     # }
-    list_bbox, infos = [], []
-    for i in range(2):
-        start_x, start_y = randint(0,img.shape[1]), randint(0, img.shape[2])
-        end_x, end_y = randint(start_x, img.shape[2]), randint(start_y,img.shape[2])
-        list_bbox.append([start_x, start_y, end_x, end_y])
-        info = dict(frame_obj_id=i,
-                    label='obj_000004',
-                    visib_fract=1,
-                    scene_id='000000',
-                    view_id='0',
-                    batch_im_id=0)
-        infos.append(info)
-    bracket_detections = tc.PandasTensorCollection(
-        infos=pd.DataFrame(infos),
-        bboxes=torch.as_tensor(np.stack(list_bbox)).float().cuda()
-    )
+    # generate from random list_bbox
+    # list_bbox, infos = [], []
+    # for i in range(2):
+    #     start_x, start_y = randint(0,img.shape[1]), randint(0, img.shape[2])
+    #     end_x, end_y = randint(start_x, img.shape[2]), randint(start_y,img.shape[2])
+    #     list_bbox.append([start_x, start_y, end_x, end_y])
+    #     info = dict(frame_obj_id=i,
+    #                 label='obj_000005',
+    #                 visib_fract=1,
+    #                 scene_id='000000',
+    #                 view_id='0',
+    #                 batch_im_id=0)
+    #     infos.append(info)
+    # bracket_detections = tc.PandasTensorCollection(
+    #     infos=pd.DataFrame(infos),
+    #     bboxes=torch.as_tensor(np.stack(list_bbox)).float().cuda()
+    # )
     camera_json = {
                 "cx": 377.614210,
                 "cy": 245.553823,
@@ -113,7 +115,9 @@ if __name__=="__main__":
     args = parser.parse_args()
     # coarse_run_id = args.coarse_run_id
     coarse_run_id = 'bracket_assembly_nut_05_04_nosym_noaug_coarse--246643'
-    det_run_id = 'detector-detector-bracket_assembly_05_04--237393'
+    # det_run_id = 'detector-detector-bracket_assembly_05_04--237393'
+    
+    det_run_id = 'detector-detector-bracket_assembly_05_04--122444'
     pose_run_id = 'bracket_assembly_nut_bolt_05_04_nosym_noaug_coarse--302621'
     refiner_run_id = 'bracket_assembly_nut_05_04_nosym_noaug_refiner--806506'
     refiner_run_id = None
