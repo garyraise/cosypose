@@ -72,7 +72,7 @@ def load_flownet_results():
         scene_id, view_id = int(scene_id), int(view_id)
         n_dets = result['rois'].shape[0]
         for n in range(n_dets):
-            obj_id = result['rois'][:, 1].astype(np.int)[n]
+            obj_id = result['rois'][:, 1].astype(int)[n]
             label = f'obj_{obj_id:06d}'
             infos.append(dict(
                 scene_id=scene_id,
@@ -118,7 +118,7 @@ def load_posecnn_results():
         scene_id, view_id = int(scene_id), int(view_id)
         n_dets = result['rois'].shape[0]
         for n in range(n_dets):
-            obj_id = result['rois'][:, 1].astype(np.int)[n]
+            obj_id = result['rois'][:, 1].astype(int)[n]
             label = f'obj_{obj_id:06d}'
             infos.append(dict(
                 scene_id=scene_id,
@@ -390,7 +390,7 @@ def load_models(coarse_run_id, refiner_run_id=None, n_workers=8, object_set='tle
     def load_model(run_id):
         if run_id is None:
             return
-        run_dir = EXP_DIR / run_id
+        run_dir = EXP_DIR / str(run_id)
         cfg = yaml.unsafe_load((run_dir / 'config.yaml').read_text())
         cfg = check_update_config(cfg)
         if cfg.train_refiner:
@@ -430,7 +430,7 @@ def main():
     parser.add_argument('--job_dir', default='', type=str)
     parser.add_argument('--comment', default='', type=str)
     parser.add_argument('--nviews', dest='n_views', default=1, type=int)
-    parser.add_argument('--coarse_run_id', dest='coarse_run_id', default=131619, type=int)
+    parser.add_argument('--coarse_run_id', dest='coarse_run_id')#, default=131619, type=int)
     args = parser.parse_args()
 
     coarse_run_id = None
@@ -526,6 +526,7 @@ def main():
         scene_ds.frame_index = scene_ds.frame_index.iloc[frame_ids,:]
     # Predictions
     print("object_set", object_set)
+    print(coarse_run_id, refiner_run_id)
     predictor, mesh_db = load_models(coarse_run_id, refiner_run_id, n_workers=n_plotters, object_set=object_set)
 
     mv_predictor = MultiviewScenePredictor(mesh_db)
