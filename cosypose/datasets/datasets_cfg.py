@@ -133,7 +133,7 @@ def make_scene_dataset(ds_name, n_frames=None):
     elif 'bracket_assembly' in ds_name:
         category_to_model = {
             'bolt': '1',
-            'nut': '4',
+            'nut': '5',
         }
         visib_fract = 0.0
         
@@ -144,7 +144,7 @@ def make_scene_dataset(ds_name, n_frames=None):
         if '05_04' in ds_name:
             category_to_model = {
             'bolt': '1',
-            'nut': '5',
+            'nut': '4',
             }
             ds_dir = BOP_DS_DIR / 'syn_fos_j_assembly_left_centered_05_04_2023_15_15'
          
@@ -200,7 +200,7 @@ def make_object_dataset(ds_name):
     elif 'bracket_assembly' in ds_name:
         category_to_model = {
             'bolt': '1',
-            'nut': '4',
+            'nut': '5',
             }
         # train_classes = ['5'] if 'nut' in ds_name else None
         ignore_symmetric = True if 'nosym' in ds_name else False
@@ -212,7 +212,7 @@ def make_object_dataset(ds_name):
         if '05_04' in ds_name:
             category_to_model = {
             'bolt': '1',
-            'nut': '5',
+            'nut': '4',
             }
             ds_dir = BOP_DS_DIR / 'syn_fos_j_assembly_left_centered_05_04_2023_15_15'
             # train_classes = ['4'] if 'nut' in ds_name else None

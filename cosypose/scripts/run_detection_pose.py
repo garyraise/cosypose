@@ -28,7 +28,7 @@ def get_prediction(data, detector_model, pose_model=None):
                     images=img,
                     one_instance_per_class=False,
                 )
-    bracket_detections = 
+    # bracket_detections = 
     # bracket_detections = tc.concatenate(bracket_detections)
     # pred_kwargs = {
     #         'pix2pose_detections': dict(

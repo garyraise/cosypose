@@ -125,7 +125,7 @@ class VisualizeSingleView():
 if __name__ == '__main__':
     #baseline
     # viz = VisualizeSingleView('bracket_assembly', 'bracket_assembly-n_views=1--3211443897')
-    #
+
     ds_name = 'bracket_assembly_05_04_nut_bolt'
     viz = VisualizeSingleView(ds_name, 'bracket_assembly_nut_nosym_debug-n_views=1--545746054')
     import random

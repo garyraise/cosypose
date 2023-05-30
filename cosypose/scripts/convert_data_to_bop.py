@@ -5,6 +5,8 @@ import json
 import os
 import shutil
 import torchvision
+
+from PIL import Image
 from scipy.spatial.transform import Rotation
 from torch.utils.data import Dataset
 from pathlib import Path
@@ -160,12 +162,6 @@ class RelativePoseDataset(Dataset):
     
     def dump(self, bop_path):
         '''save data to bop format'''
-        self.bop_path = Path(bop_path)
-        self.dataset_name = 'real_data'
-        self.dataset_path = Path(bop_path) / self.dataset_name
-        self.models_path = Path(bop_path) / self.dataset_name / 'models'
-        self.trainpbr_path = Path(bop_path) / self.dataset_name / 'train_pbr'
-        self.scene_path = self.trainpbr_path / self.scene_id
         # just copy from other folder for now. Part dimension and symmetries
         # self.create_model_info()
         # self.create_trainpbr()
@@ -176,19 +172,10 @@ class RelativePoseDataset(Dataset):
         shutil.copytree(model_path_05_04, self.models_path)
 
     def create_camera_json(self):
-        self.camera_json = {
-                "cx": 377.614210,
-                "cy": 245.553823,
-                "depth_scale": 1.0,
-                "fx": 1339.996108,
-                "fy": 1339.743975,
-                "height": 540,
-                "width": 720
-            }
         # camera_json_path = self.dataset_path / 'camera.json'
         # with open(camera_json_path, "w+") as f:
         #     json.dump(self.camera_json, f)
-        
+        pass
     def create_scene_hierarcy(self):
         scene_depth_path = self.scene_path / 'depth'
         scene_depth_path = self.scene_path / 'depth'
@@ -210,29 +197,7 @@ class RelativePoseDataset(Dataset):
         self.save_rgb()
     
     def create_scene_camera(self):
-        # self.__init__(self):
-        self.pose_ds = RelativePoseDataset(h5_filename=data_path,
-        rotation_type=RotationType.EULER,
-        grayscale=False,)
-        scene_camera_json = {}
-        for img_id, (img, nut_to_camera, cam_R, cam_t) in enumerate(self.pose_ds):
-            scene_camera_json[img_id] = {
-                'cam_K': [self.camera_json['fx'],
-                          0,
-                          self.camera_json['cx'],
-                          0,
-                          self.camera_json['fy'],
-                          self.camera_json['cy'],
-                          0,
-                          0,
-                          1],
-                "cam_R_w2c": cam_R.tolist(),
-                "cam_t_w2c": cam_t.tolist(),
-                "depth_scale": 1.0
-            }
-        scene_camera_path = self.scene_path / 'scene_camera.json'
-        with open(scene_camera_path, "w+") as f:
-            json.dump(scene_camera_json, f)
+        raise NotImplementedError
 
     def create_scene_gt(self):
         scene_gt = {}
@@ -250,16 +215,36 @@ class RelativePoseDataset(Dataset):
                 "cam_t_m2c": cam_R.tolist(),
                 "obj_id": 0 # only nut
             }
-        pass
 
     def create_scene_gt_info(self):
         pass
     
     def save_rgb(self):
-        pass
+        for img_id, (img, nut_to_camera, cam_R, cam_t) in enumerate(self.pose_ds):
+            pil_im = Image.fromarray(img)
+            path = self.rgb_path / f"{img_id:02d}.jpg"
+            pil_im.save(str(path))
+
 
 if __name__=="__main__":
     data_path = "/home/ubuntu/synthetic_pose_estimation/cosypose/local_data/bop_datasets/real_data/check_1"
+    bop_path = Path("/home/ubuntu/synthetic_pose_estimation/cosypose/local_data/bop_datasets/real_data/")
+    dataset_name = 'real_data'
+    dataset_path = Path(bop_path) / dataset_name
+    models_path = Path(bop_path) / dataset_name / 'models'
+    trainpbr_path = Path(bop_path) / dataset_name / 'train_pbr'
+    scene_path = trainpbr_path / "000000"
+    rgb_path = scene_path / "rgb"
+
+    camera_json = {
+       "cx": 377.614210,
+       "cy": 245.553823,
+       "depth_scale": 1.0,
+       "fx": 1339.996108,
+       "fy": 1339.743975,
+       "height": 540,
+       "width": 720
+    }
     pose_ds = RelativePoseDataset(
         h5_filename=data_path,
         rotation_type=RotationType.EULER,
@@ -268,6 +253,22 @@ if __name__=="__main__":
         rotational_order=[1, 1, 1],
         preprocess_fn=crop_numpy_image_to_torch
     )
-    # pose_ds.dump(bop_path='/home/ubuntu/synthetic_pose_estimation/cosypose/local_data/bop_datasets/')
-    for data in pose_ds:
-        print(data)
+    scene_camera_json = {}
+    for img_id, (img, nut_to_camera, cam_R, cam_t) in enumerate(pose_ds):
+        scene_camera_json[img_id] = {
+            'cam_K': [self.camera_json['fx'],
+                      0,
+                      self.camera_json['cx'],
+                      0,
+                      self.camera_json['fy'],
+                      self.camera_json['cy'],
+                      0,
+                      0,
+                      1],
+            "cam_R_w2c": cam_R.tolist(),
+            "cam_t_w2c": cam_t.tolist(),
+            "depth_scale": 1.0
+        }
+    scene_camera_path = self.scene_path / 'scene_camera.json'
+    with open(scene_camera_path, "w+") as f:
+        json.dump(scene_camera_json, f)
