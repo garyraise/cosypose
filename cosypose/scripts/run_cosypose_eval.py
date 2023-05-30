@@ -143,7 +143,7 @@ def load_posecnn_results():
 def load_custom_detection_from_gt(ds_name='bracket_assembly'):
     category_to_model = {
             'bolt': '1',
-            'nut': '4',
+            'nut': '5',
             }
     # train_classes = ['5'] if 'nut' in ds_name else None
     debug = 'debug' in ds_name
@@ -153,7 +153,7 @@ def load_custom_detection_from_gt(ds_name='bracket_assembly'):
     if '05_04' in ds_name:
         category_to_model = {
             'bolt': '1',
-            'nut': '5',
+            'nut': '4',
             }
         dataset_name = 'syn_fos_j_assembly_left_centered_05_04_2023_15_15'
         # train_classes = ['4'] if 'nut' in ds_name else None
