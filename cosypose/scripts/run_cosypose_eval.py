@@ -156,7 +156,6 @@ def load_custom_detection_from_gt(ds_name='bracket_assembly'):
             'nut': '4',
             }
         dataset_name = 'syn_fos_j_assembly_left_centered_05_04_2023_15_15'
-        # train_classes = ['4'] if 'nut' in ds_name else None
     train_classes = [v for k, v in category_to_model.items() if k in ds_name]
     # print(dataset_name, train_classes)
     path_data_dir = LOCAL_DATA_DIR / 'bop_datasets' / dataset_name

@@ -19,8 +19,7 @@ from cosypose.integrated.multiview_predictor import MultiviewScenePredictor
 def get_prediction(data, detector_model, pose_model=None):
     # img, nut_to_camera, cam_R, cam_R = data
     img, relative_pose, camera_orientation, cam_R, cam_R, relative_transform, target_transform = data
-    # TODO
-    # img check shape
+
     img = torch.unsqueeze(img, 0)
     img = img.cuda().float() / 255
     print("img", img.shape)
@@ -28,13 +27,7 @@ def get_prediction(data, detector_model, pose_model=None):
                     images=img,
                     one_instance_per_class=False,
                 )
-    # bracket_detections = 
-    # bracket_detections = tc.concatenate(bracket_detections)
-    # pred_kwargs = {
-    #         'pix2pose_detections': dict(
-    #             detections=bracket_detections
-    #         )
-    # }
+
     # generate from random list_bbox
     # list_bbox, infos = [], []
     # for i in range(2):
@@ -52,6 +45,7 @@ def get_prediction(data, detector_model, pose_model=None):
     #     infos=pd.DataFrame(infos),
     #     bboxes=torch.as_tensor(np.stack(list_bbox)).float().cuda()
     # )
+
     camera_json = {
                 "cx": 377.614210,
                 "cy": 245.553823,
@@ -71,7 +65,7 @@ def get_prediction(data, detector_model, pose_model=None):
             0,
             1]).reshape([3,3])
     cam_K = torch.as_tensor(np.expand_dims(cam_K, 0)).cuda()
-    candidates, sv_preds = pose_model.get_predictions(
+    _, sv_preds = pose_model.get_predictions(
                 img, K=cam_K, detections=bracket_detections,
                 n_coarse_iterations=1,
                 data_TCO_init=None,
