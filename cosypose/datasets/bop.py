@@ -62,6 +62,7 @@ class BOPDataset:
         ds_dir = Path(ds_dir)
         self.ds_dir = ds_dir
         self.train_classes = train_classes
+        print(ds_dir)
         assert ds_dir.exists(), 'Dataset does not exists.'
 
         self.split = split

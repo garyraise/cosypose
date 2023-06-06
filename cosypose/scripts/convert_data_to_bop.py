@@ -76,15 +76,16 @@ class RelativePoseDataset(Dataset):
             if grayscale
             else None
         )
-
+        
         if load_to_memory:
             self._images = self._h5_file["images"][:]
         else:
             self._images = self._h5_file["images"]
 
-        self._poses = self._h5_file["poses"]
-        self._target_poses = self._h5_file["target_poses"]
-        self._camera_poses = self._h5_file["camera_poses"]
+        self._poses = self._h5_file["poses"] # end_effector pose
+        self._target_poses = self._h5_file["target_poses"] # component pose - nut
+        self._camera_poses = self._h5_file["camera_poses"]  # camera pose
+        self.start_pose = self._h5_file["start_pose"]
         self._rotational_order = np.array(rotational_order)
 
         assert self._images.shape[0] == self._poses.shape[0]
@@ -134,7 +135,13 @@ class RelativePoseDataset(Dataset):
         camera_transform = np.eye(4)
         camera_transform[:3, :3] = camera_orientation.as_matrix()
         camera_transform[:3, 3] = camera_position
-        
+
+        # start_pose = self.start_pose
+        # start_rotation = Rotation.from_quat([pose[3:]])
+        # start_transform = np.eye(4)
+        # start_transform[:3, :3] = start_rotation.as_matrix()
+        # start_transform[:3, 3] = start_pose[:3]
+
         relative_transform = np.linalg.inv(camera_transform).dot(target_transform)
         relative_orientation = Rotation.from_matrix(relative_transform[:3, :3])
         if np.any(self._rotational_order > 1):
@@ -158,7 +165,7 @@ class RelativePoseDataset(Dataset):
         relative_pose[:3] = relative_transform[:3, 3]
         if self._grayscale is not None:
             output_img = self._grayscale(output_img)
-        return output_img, torch.tensor(relative_pose).float(),  camera_orientation, camera_position, camera_transform, relative_transform, target_transform
+        return output_img, torch.tensor(relative_pose).float(),  camera_orientation, camera_position, camera_transform, relative_transform, target_transform # start_transform
     
     def dump(self, bop_path):
         '''save data to bop format'''
@@ -175,7 +182,16 @@ class RelativePoseDataset(Dataset):
         # camera_json_path = self.dataset_path / 'camera.json'
         # with open(camera_json_path, "w+") as f:
         #     json.dump(self.camera_json, f)
-        pass
+        self.camera_json = {
+            "cx": 377.614210,
+            "cy": 245.553823,
+            "depth_scale": 1.0,
+            "fx": 1339.996108,
+            "fy": 1339.743975,
+            "height": 540,
+            "width": 720,
+        }
+        
     def create_scene_hierarcy(self):
         scene_depth_path = self.scene_path / 'depth'
         scene_depth_path = self.scene_path / 'depth'

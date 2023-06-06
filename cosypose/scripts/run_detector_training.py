@@ -84,7 +84,7 @@ if __name__ == '__main__':
     elif 'bop-' in args.config:
         cfg.input_resize = None
     elif 'bracket_assembly' in args.config:
-        cfg.input_resize = (480, 640)
+        cfg.input_resize = (540, 720)
     else:
         raise ValueError
 
@@ -119,6 +119,8 @@ if __name__ == '__main__':
             train_ds_names = train_ds_names + '_nosym'
         if '05_04' in args.config:
             train_ds_names = train_ds_names + '_05_04'
+        if '6_04' in args.config:
+            train_ds_names = train_ds_names + '_6_04'
 
         cfg.train_ds_names = [(train_ds_names, 1)]
         cfg.val_ds_names = cfg.train_ds_names

@@ -147,7 +147,8 @@ def make_scene_dataset(ds_name, n_frames=None):
             'nut': '4',
             }
             ds_dir = BOP_DS_DIR / 'syn_fos_j_assembly_left_centered_05_04_2023_15_15'
-         
+        if '6_04' in ds_name: 
+            ds_dir = BOP_DS_DIR / 'syn_fos_j_assembly_left_centered_06_03_2023_15_27'
         train_classes = [v for k, v in category_to_model.items() if k in ds_name]
         logger.info(f"ds_dir {ds_dir}")
         logger.info(f"train_classes {train_classes}")
@@ -216,6 +217,8 @@ def make_object_dataset(ds_name):
             }
             ds_dir = BOP_DS_DIR / 'syn_fos_j_assembly_left_centered_05_04_2023_15_15'
             # train_classes = ['4'] if 'nut' in ds_name else None
+        if '6_04' in ds_name:
+            ds_dir = BOP_DS_DIR / 'syn_fos_j_assembly_left_centered_06_03_2023_15_27'
         logger.info(f"category_to_model{category_to_model}")
         train_classes = [v for k, v in category_to_model.items() if k in ds_name]
         object_ds_dir = ds_dir / 'models'

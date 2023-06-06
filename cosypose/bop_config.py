@@ -39,7 +39,7 @@ BOP_CONFIG['lmo'] = dict(
 )
 
 BOP_CONFIG['bracket_assembly'] = dict(
-    input_resize=(640, 480),
+    input_resize=(720, 540),
     urdf_ds_name='bracket_assembly',
     obj_ds_name='bracket_assembly',
     train_pbr_ds_name=['bracket_assembly'],

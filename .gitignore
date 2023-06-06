@@ -3,7 +3,7 @@ __pycache__
 wandb/
 *.log
 ipynb_checkpoints
-.vscode
+.vscode/build
 logs
 *.pyc
 dask-worker-space

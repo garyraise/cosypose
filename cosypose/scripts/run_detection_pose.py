@@ -7,6 +7,9 @@ from pathlib import Path
 import yaml
 import torch
 import argparse
+import open3d as o3d
+import open3d.visualization.rendering as rendering
+
 from random import randint
 import cosypose.utils.tensor_collection as tc
 from cosypose.datasets.datasets_cfg import make_scene_dataset
@@ -18,11 +21,12 @@ from cosypose.integrated.multiview_predictor import MultiviewScenePredictor
 
 def get_prediction(data, detector_model, pose_model=None):
     # img, nut_to_camera, cam_R, cam_R = data
-    img, relative_pose, camera_orientation, cam_R, cam_R, relative_transform, target_transform = data
+    (img, relative_pose, camera_orientation,
+      cam_R, cam_t, relative_transform, target_transform) = data
 
-    img = torch.unsqueeze(img, 0)
-    img = img.cuda().float() / 255
-    print("img", img.shape)
+    np_img = torch.unsqueeze(img, 0)
+    np_img = np_img.cuda().float() / 255
+    print("np_img", np_img.shape)
     bracket_detections = detector_model.get_detections(
                     images=img,
                     one_instance_per_class=False,
@@ -72,7 +76,7 @@ def get_prediction(data, detector_model, pose_model=None):
                 n_refiner_iterations=0,
                 )
     
-    return sv_preds
+    return bracket_detections, sv_preds
 
 def main(det_run_id, coarse_run_id, refiner_run_id=None, object_set='bracket_assembly_05_04'):
     n_coarse_iterations = 1
@@ -98,8 +102,24 @@ def main(det_run_id, coarse_run_id, refiner_run_id=None, object_set='bracket_ass
         mv_predictor=mv_predictor,
     )
     for img_id, data in enumerate(pose_ds):
-        res = get_prediction(data, detector_model, pose_predictor)
+        # detections, poses = get_prediction(data, detector_model, pose_predictor)
         print(res)
+
+        # Create a renderer with a set image width and height
+        render = rendering.OffscreenRenderer(img_width, img_height)
+
+        # setup camera intrinsic values
+        pinhole = o3d.camera.PinholeCameraIntrinsic(img_width, img_height, fx, fy, cx, cy)
+            
+        # Pick a background colour of the rendered image, I set it as black (default is light gray)
+        render.scene.set_background([0.0, 0.0, 0.0, 1.0])  # RGBA
+
+
+        # visualize gt
+        gt_label = 'obj_000006'
+        mesh_path = mesh_db.infos[gt_label]['mesh_path']
+        gt_mesh = o3d.io.read_triangle_mesh(mesh_path)
+        # o3d.visualization.draw_geometries([gt_mesh])
     return
 
 if __name__=="__main__":
@@ -107,7 +127,7 @@ if __name__=="__main__":
     parser.add_argument('--config', default='bracket_assembly_05_04_nut_bolt', type=str)
     # parser.add_argument('--coarse_run_id', dest='coarse_run_id', default=246643, type=int)
     args = parser.parse_args()
-    # coarse_run_id = args.coarse_run_id
+    # coarse_run_id = args.coarse_run_i
     coarse_run_id = 'bracket_assembly_nut_05_04_nosym_noaug_coarse--246643'
     # det_run_id = 'detector-detector-bracket_assembly_05_04--237393'
     
@@ -117,5 +137,3 @@ if __name__=="__main__":
     refiner_run_id = None
     object_set = args.config
     main(det_run_id, coarse_run_id, refiner_run_id, object_set=object_set)
-    
-    

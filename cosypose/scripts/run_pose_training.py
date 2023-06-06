@@ -200,6 +200,9 @@ def make_cfg(args):
         if '05_04' in args.config:
             object_ds_name = object_ds_name + '_05_04'
             train_ds_names = train_ds_names + '_05_04'
+        if '6_04' in args.config:
+            object_ds_name = object_ds_name + '_6_04'
+            train_ds_names = train_ds_names + '_6_04'
         cfg.train_ds_names = [(train_ds_names, 1)]
         cfg.object_ds_name = object_ds_name
 
@@ -209,7 +212,7 @@ def make_cfg(args):
         cfg.urdf_ds_name = bop_cfg['urdf_ds_name']
         cfg.input_resize = bop_cfg['input_resize']
         
-        # cfg.test_ds_names = ["bracket_assembly"]
+        cfg.test_ds_names = []
         cfg.val_epoch_interval = 50
         cfg.n_test_frames = 100
         if 'coarse' in args.config:

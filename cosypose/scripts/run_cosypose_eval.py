@@ -156,6 +156,9 @@ def load_custom_detection_from_gt(ds_name='bracket_assembly'):
             'nut': '4',
             }
         dataset_name = 'syn_fos_j_assembly_left_centered_05_04_2023_15_15'
+    if '6_04' in ds_name:
+        dataset_name = 'syn_fos_j_assembly_left_centered_06_03_2023_15_27'
+
     train_classes = [v for k, v in category_to_model.items() if k in ds_name]
     # print(dataset_name, train_classes)
     path_data_dir = LOCAL_DATA_DIR / 'bop_datasets' / dataset_name
@@ -512,6 +515,7 @@ def main():
     if scene_id is not None:
         mask = scene_ds.frame_index['scene_id'] == scene_id
         scene_ds.frame_index = scene_ds.frame_index[mask].reset_index(drop=True)
+        scene_ds.frame_index = scene_ds.frame_index[mask].reset_index(drop=True)
     if frame_ids is not None:
         scene_ds.frame_index = scene_ds.frame_index.iloc[frame_ids,:]
     # Predictions
@@ -605,6 +609,7 @@ def main():
 
     all_predictions = OrderedDict({k: v for k, v in sorted(all_predictions.items(), key=lambda item: item[0])})
     # Evaluation.
+
     meters = get_pose_meters(scene_ds)
     mv_group_ids = list(iter(pred_runner.sampler))
     scene_ds_ids = np.concatenate(scene_ds_pred.frame_index.loc[mv_group_ids, 'scene_ds_ids'].values)

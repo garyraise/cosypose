@@ -15,7 +15,7 @@ from cosypose.evaluation.runner_utils import format_results
 from cosypose.training.detector_models_cfg import create_model_detector, check_update_config
 from cosypose.integrated.detector import Detector
 from cosypose.evaluation.pred_runner.detections import DetectionRunner
-from cosypose.scripts.run_cosypose_eval import load_pix2pose_results, load_posecnn_results
+from cosypose.scripts.run_cosypose_eval2 import load_detector
 
 from cosypose.evaluation.meters.detection_meters import DetectionMeter
 from cosypose.evaluation.eval_runner.detection_eval import DetectionEvaluation
@@ -32,23 +32,6 @@ torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 logger = get_logger(__name__)
-
-
-def load_detector(run_id):
-    run_dir = EXP_DIR / run_id
-    cfg = yaml.unsafe_load((run_dir / 'config.yaml').read_text())
-    cfg = check_update_config(cfg)
-    label_to_category_id = cfg.label_to_category_id
-    model = create_model_detector(cfg, len(label_to_category_id))
-    
-    ckpt = torch.load(run_dir / 'checkpoint_349.pth.tar')
-    ckpt = ckpt['state_dict']
-    model.load_state_dict(ckpt)
-    model = model.cuda().eval()
-    model.cfg = cfg
-    model.config = cfg
-    model = Detector(model)
-    return model
 
 
 def get_meters(scene_ds):
@@ -105,14 +88,6 @@ def run_detection_eval(args, detector=None):
         })
 
     all_predictions = dict()
-
-    if args.external_predictions:
-        if 'ycbv' in args.ds_name:
-            all_predictions['posecnn'] = load_posecnn_results().cpu()
-        elif 'tless' in args.ds_name:
-            all_predictions['retinanet/pix2pose'] = load_pix2pose_results(all_detections=True).cpu()
-        else:
-            pass
 
     for pred_prefix, pred_kwargs_n in pred_kwargs.items():
         logger.info(f"Predicgtion: {pred_prefix}")
